@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-const difficultyLevels = ["상", "중", "하"];
+const difficultyLevels = ["high", "middle", "low"];
 
 const CategoryModal = ({ isOpen, onClose, selectedCategory }) => {
   const router = useRouter();

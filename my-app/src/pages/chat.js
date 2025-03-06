@@ -82,6 +82,8 @@ export default function ChatPage() {
     const formData = new FormData();
     formData.append("audioFile", blob, "recording.webm");
     formData.append("messages", JSON.stringify(messages));
+    formData.append("category", category); 
+    formData.append("difficulty", difficulty); 
 
     try {
       const res = await fetch("/api/stt", {
