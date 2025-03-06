@@ -6,7 +6,11 @@ module.exports = {
     "./src/styles/**/*.{css}",  // ✅ Tailwind CSS 파일 적용
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        hakgyo: ["HakgyoansimDunggeunmisoTTF-B", "sans-serif"], // 폰트 설정
+      },
   },
+},
   plugins: [],
 };

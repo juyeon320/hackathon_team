@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import "../styles/globals.css"; 
 import Footer from "@/component/footer";
+import Title from "@/component/Title"; 
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
@@ -93,7 +94,9 @@ export default function ChatPage() {
 
       const data = await res.json();
       const { userText, gptReply, audio, messages: updatedMessages } = data;
-
+      console.log("🎤 유저 입력:", userText);
+    console.log("🤖 GPT 응답:", gptReply);
+    console.log("🔄 업데이트된 메시지 리스트:", updatedMessages);
       setMessages(updatedMessages);
 
       if (audio) {
@@ -140,22 +143,45 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start bg-cover bg-center pt-16"
-      style={{ backgroundImage: "url('/images/background1.jpg')" }}>
+      style={{ backgroundImage: "url('/images/background2.jpg')" }}>
       
-      <h1 className="text-3xl font-bold mb-4 text-white">대화 페이지</h1>
+      <Title>포비야</Title>
 
-     {/* 채팅 메시지 박스 */}
-      <div className="w-full max-w-md h-64 overflow-y-auto border-b-2 border-gray-300 mb-4 p-2 backdrop-blur-md bg-white/10 rounded-lg">
-        {Array.isArray(messages) ? (
-          messages.map((msg, index) => (
-            <p key={index} className={msg.role === "user" ? "text-right text-blue-300" : "text-left text-white"}>
-              {msg.content}
-            </p>
-          ))
-        ) : (
-          <p className="text-center text-red-500">⚠️ 오류: messages가 배열이 아닙니다.</p>
-        )}
-      </div>
+{/* 채팅 메시지 박스 */}
+<div className="w-full max-w-md h-64 overflow-y-auto border border-gray-300 mb-4 p-4 bg-white rounded-lg shadow-lg flex flex-col gap-2">
+  {Array.isArray(messages) ? (
+    messages.map((msg, index) => {
+      console.log(`🔍 메시지 ${index}:`, msg); // 디버깅용
+
+      // 역할 분류
+      const isSystemMessage = msg.role === "system" && index === 0; // 첫 시스템 메시지
+      const isGPTResponse = msg.role === "system" && index !== 0; // 이후 GPT 응답
+      const isUserMessage = msg.role === "user";
+
+      console.log("u",isUserMessage);
+      return (
+        <div key={index} className={`flex ${isUserMessage ? "justify-start" : "justify-end"}`}>
+          <div
+            className={`p-3 max-w-[75%] rounded-lg text-sm ${
+              isSystemMessage
+                ? "bg-yellow-400 text-black text-center w-full" // 초기 시스템 메시지는 노란색 중앙 정렬
+                : isUserMessage
+                ? "bg-blue-500 text-black self-start" // 유저 메시지는 왼쪽 (파란색)
+                : "bg-gray-600 text-blue self-end" // GPT 응답은 오른쪽 (회색)
+            }`}
+          >
+            {msg.content}
+          </div>
+        </div>
+      );
+    })
+  ) : (
+    <p className="text-center text-red-500">
+      ⚠️ 오류: messages가 배열이 아닙니다. 현재 값: {JSON.stringify(messages)}
+    </p>
+  )}
+</div>
+
 
       {/* 🔹 녹음 버튼 또는 종료 버튼 (대화 횟수 초과 시 "종료" 버튼 표시) */}
       <div className="flex flex-col items-center justify-center mt-12">
@@ -164,7 +190,7 @@ export default function ChatPage() {
             <button 
               onClick={startRecording} 
               className={`px-6 py-3 text-lg font-bold rounded-lg transition-all duration-300
-                ${isRecording ? "bg-red-600 text-white animate-pulse" : "bg-gray-400 text-gray-800 hover:bg-gray-500"}`}
+                ${isRecording ? "bg-red-600 animate-pulse" : "bg-gray-400 text-gray-800 hover:bg-gray-500"}`}
               disabled={isRecording || isPlaying} // 녹음 중이거나 음성이 재생 중이면 비활성화
             >
               {isRecording ? "⏹️ 녹음 중 (5초)" : isPlaying ? "🔊 AI 응답 중" : "🎙️ 시작"}

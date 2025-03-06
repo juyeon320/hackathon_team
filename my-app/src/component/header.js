@@ -8,6 +8,7 @@ import CategoryModal from "./CategoryModal";
 const categories = [
   { name: "중국집 주문", value: "restaurant" },
   { name: "병원 문의", value: "hospital" },
+  { name: "은행", value: "bank" },
 ];
 
 const Header = () => {

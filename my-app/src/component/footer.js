@@ -2,9 +2,9 @@ import Link from "next/link";
 
 const Footer = () => {
   const buttons = [
-    { label: "작물", path: "/experience" },
-    { label: "홈", path: "/categorySelect" },
-    { label: "명예의 전당", path: "/hallOfFame" },
+    { imgSrc: "/images/seeds.png", path: "/experience", alt: "작물" },  
+    { imgSrc: "/images/home.png", path: "/categorySelect", alt: "홈" },  
+    { imgSrc: "/images/c2.png", path: "/hallOfFame", alt: "명예의 전당" },  
   ];
 
   return (
@@ -13,10 +13,10 @@ const Footer = () => {
         position: "fixed",
         bottom: 0,
         width: "100%",
-        backgroundColor: "transparent",
-        color: "white",
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        backdropFilter: "blur(8px)",
         padding: "20px 0",
-        boxShadow: "0 -2px 10px rgba(0, 0, 0, 0.2)",
+        boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.15)",
         textAlign: "center",
       }}
     >
@@ -24,7 +24,7 @@ const Footer = () => {
         style={{
           display: "flex",
           justifyContent: "center",
-          gap: "24px",
+          gap: "30px",
           flexWrap: "wrap",
           padding: "0 24px",
         }}
@@ -34,22 +34,32 @@ const Footer = () => {
             key={index}
             href={button.path}
             style={{
-              display: "block",
-              width: "100%",
-              maxWidth: "180px",
-              padding: "24px 36px",
-              fontSize: "18px",
-              fontWeight: "600",
-              textAlign: "center",
-              backgroundColor: "orange",
-              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "64px", // 이미지 크기 조정
+              height: "64px",
               textDecoration: "none",
-              color: "white",
-              transition: "background-color 0.3s",
-              marginBottom: "24px",
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-5px)";
+              e.currentTarget.style.boxShadow = "0 8px 16px rgba(0, 0, 0, 0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
             }}
           >
-            {button.label}
+            <img 
+              src={button.imgSrc} 
+              alt={button.alt} 
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+              }} 
+            />
           </Link>
         ))}
       </div>
