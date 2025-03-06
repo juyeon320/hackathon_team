@@ -1,128 +1,139 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import "../styles/globals.css"; 
 import Footer from "@/component/footer";
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const category = searchParams.get("category");
   const difficulty = searchParams.get("difficulty");
 
+  const MAX_RECORDS = 3; // 🔹 최대 녹음 횟수 설정
   const [messages, setMessages] = useState([
-    { sender: "system", text: `안녕하세요! "${category}" 카테고리의 "${difficulty}" 난이도로 대화해요.` },
+    { role: "system", content: `안녕하세요! "${category}" 카테고리의 "${difficulty}" 난이도로 대화해요.` },
   ]);
+  const [recordCount, setRecordCount] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [audioSrc, setAudioSrc] = useState(null);
+  const [isConversationEnded, setIsConversationEnded] = useState(false); // 🔹 종료 상태 추가
   const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]); // 🎯 최신 녹음 데이터를 저장하기 위한 useRef 추가
-  const audioRef = useRef(null); // 🎯 자동 재생을 위한 useRef 추가
+  const audioChunksRef = useRef([]);
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false); // 🔹 AI 음성이 재생 중인지 여부
 
-  // 🎙️ 녹음 시작
+  useEffect(() => {
+    console.log("🔍 현재 messages 상태:", messages);
+  }, [messages]);
+  
+  // 🎙️ 녹음 시작 (5초 후 자동 중지)
   const startRecording = async () => {
-    console.log("🎤 녹음 시작!");
-    audioChunksRef.current = []; // 이전 데이터 초기화
-    setAudioSrc(null); // 기존 음성 삭제
+    if (isRecording || isPlaying || recordCount >= MAX_RECORDS) return; // 🔹 최대 횟수 초과 시 실행 안 함
+
+    console.log(`🎤 녹음 시작! 현재 녹음 횟수: ${recordCount}/${MAX_RECORDS}`);
+    audioChunksRef.current = [];
+    setAudioSrc(null);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log("✅ 마이크 접근 성공!");
-
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (event) => {
-        console.log("🔹 데이터 수신됨:", event.data.size, "bytes");
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
 
       mediaRecorder.onstop = async () => {
-        console.log("⏹️ 녹음 중지됨! 데이터 크기:", audioChunksRef.current.length);
+        console.log("⏹️ 자동 녹음 중지됨! 데이터 크기:", audioChunksRef.current.length);
+        setRecordCount(prev => prev + 1);
         await handleTranscribeAndAskGPT(audioChunksRef.current);
       };
 
       mediaRecorder.start();
       setIsRecording(true);
+
+      // 5초 후 자동으로 중지
+      setTimeout(() => {
+        stopRecording();
+      }, 5000);
+      
     } catch (error) {
-      console.error("❌ 마이크 접근 실패:", error);
       alert("마이크 권한을 허용해주세요.");
     }
   };
 
-  // ⏹️ 녹음 종료 후 자동 변환 실행
+  // ⏹️ 녹음 중지
   const stopRecording = () => {
+    if (!mediaRecorderRef.current) return;
     console.log("⏹️ 녹음 중지 요청됨");
-    if (!mediaRecorderRef.current) {
-      console.error("❌ MediaRecorder가 존재하지 않음.");
-      return;
-    }
     mediaRecorderRef.current.stop();
     setIsRecording(false);
   };
 
   // 🎤 STT + GPT + TTS API 호출
   const handleTranscribeAndAskGPT = async (chunks) => {
-    if (!chunks || chunks.length === 0) {
-      console.error("❌ 녹음된 데이터가 없음!");
-      alert("녹음 데이터가 없습니다.");
-      return;
-    }
+    if (chunks.length === 0) return;
 
-    console.log("📤 서버로 전송할 오디오 크기:", chunks.length, "조각");
-
-    // 🔹 Blob 생성
     const blob = new Blob(chunks, { type: "audio/webm" });
-
-    // 🔹 FormData에 담아서 전송
     const formData = new FormData();
     formData.append("audioFile", blob, "recording.webm");
+    formData.append("messages", JSON.stringify(messages));
 
     try {
-      console.log("📡 API 요청 시작...");
       const res = await fetch("/api/stt", {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) {
-        throw new Error(`서버 오류: ${res.status}`);
-      }
-
       const data = await res.json();
-      console.log("✅ 서버 응답 수신:", data);
+      const { userText, gptReply, audio, messages: updatedMessages } = data;
 
-      const userText = data.userText || "음성 변환 실패";
-      const gptReply = data.gptReply || "GPT 응답 오류!";
-      const base64Audio = data.audio;
+      setMessages(updatedMessages);
 
-      // 📌 UI에 메시지 추가
-      setMessages((prev) => [
-        ...prev,
-        { sender: "user", text: userText },
-        { sender: "bot", text: gptReply },
-      ]);
-
-      // 📌 음성 파일 자동 재생
-      if (base64Audio) {
-        console.log("🎵 변환된 오디오 적용!");
-        const audioData = `data:audio/mp3;base64,${base64Audio}`;
+      if (audio) {
+        const audioData = `data:audio/mp3;base64,${audio}`;
         setAudioSrc(audioData);
 
-        // 🎯 음성 자동 재생
+        // 🔹 AI 음성 재생 시작
+        setIsPlaying(true);
+
         setTimeout(() => {
           if (audioRef.current) {
-            audioRef.current.play().catch(err => console.error("❌ 오디오 자동 재생 오류:", err));
+            audioRef.current.play();
+            console.log("🔊 AI 음성 재생 시작");
           }
         }, 500);
       }
+
+      // 🔹 횟수 초과 후 종료 버튼 표시
+      if (recordCount + 1 >= MAX_RECORDS) {
+        setIsConversationEnded(true);
+      }
       
     } catch (err) {
-      console.error("❌ API 요청 실패:", err);
       alert("오류 발생: " + err.message);
     }
+  };
+
+  // 🔁 **AI 음성이 끝난 후, 1초 후 다시 녹음 시작 (단, 최대 횟수 초과 시 종료 버튼 표시)**
+  useEffect(() => {
+    if (!isPlaying && audioSrc) {
+      if (recordCount < MAX_RECORDS) {
+        console.log("🔁 AI 음성이 끝났으므로 1초 후 다시 녹음 시작!");
+        setTimeout(() => {
+          startRecording();
+        }, 1000); // 🔹 1초 딜레이 후 녹음 시작
+      }
+    }
+  }, [isPlaying]);
+
+  // 📌 **"종료" 버튼 클릭 시 경험치 페이지로 이동**
+  const handleEndConversation = () => {
+    router.push(`/experience?difficulty=${difficulty}`);
   };
 
   return (
@@ -131,32 +142,51 @@ export default function ChatPage() {
       
       <h1 className="text-3xl font-bold mb-4 text-white">대화 페이지</h1>
 
-      {/* 채팅 메시지 박스 */}
+     {/* 채팅 메시지 박스 */}
       <div className="w-full max-w-md h-64 overflow-y-auto border-b-2 border-gray-300 mb-4 p-2 backdrop-blur-md bg-white/10 rounded-lg">
-        {messages.map((msg, index) => (
-          <p key={index} className={msg.sender === "user" ? "text-right text-blue-300" : "text-left text-white"}>
-            {msg.text}
-          </p>
-        ))}
+        {Array.isArray(messages) ? (
+          messages.map((msg, index) => (
+            <p key={index} className={msg.role === "user" ? "text-right text-blue-300" : "text-left text-white"}>
+              {msg.content}
+            </p>
+          ))
+        ) : (
+          <p className="text-center text-red-500">⚠️ 오류: messages가 배열이 아닙니다.</p>
+        )}
       </div>
 
-      {/* 중앙 원형 버튼 */}
+      {/* 🔹 녹음 버튼 또는 종료 버튼 (대화 횟수 초과 시 "종료" 버튼 표시) */}
       <div className="flex flex-col items-center justify-center mt-12">
         <div className="w-[400px] h-[400px] bg-gray-300 rounded-full flex items-center justify-center shadow-lg">
-          {/* 버튼 */}
-          <button 
-            onClick={isRecording ? stopRecording : startRecording} 
-            className={`px-6 py-3 text-lg font-bold rounded-lg transition-all duration-300
-              ${isRecording ? "bg-red-600 text-white animate-pulse" : "bg-gray-400 text-gray-800 hover:bg-gray-500"}`}
-          >
-            {isRecording ? "⏹️ 중지" : "🎙️ 시작"}
-          </button>
+          {!isConversationEnded ? (
+            <button 
+              onClick={startRecording} 
+              className={`px-6 py-3 text-lg font-bold rounded-lg transition-all duration-300
+                ${isRecording ? "bg-red-600 text-white animate-pulse" : "bg-gray-400 text-gray-800 hover:bg-gray-500"}`}
+              disabled={isRecording || isPlaying} // 녹음 중이거나 음성이 재생 중이면 비활성화
+            >
+              {isRecording ? "⏹️ 녹음 중 (5초)" : isPlaying ? "🔊 AI 응답 중" : "🎙️ 시작"}
+            </button>
+          ) : (
+            <button 
+              onClick={handleEndConversation} 
+              className="px-6 py-3 text-lg font-bold bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
+            >
+              종료
+            </button>
+          )}
         </div>
       </div>
 
       {/* 음성 자동 재생 */}
       {audioSrc && (
-        <audio ref={audioRef} autoPlay controls className="mt-4">
+        <audio 
+          ref={audioRef} 
+          autoPlay 
+          controls 
+          className="mt-4"
+          onEnded={() => setIsPlaying(false)} // 🔹 음성이 끝나면 다시 녹음 시작 or 종료 체크
+        >
           <source src={audioSrc} type="audio/mp3" />
           브라우저가 오디오 태그를 지원하지 않습니다.
         </audio>

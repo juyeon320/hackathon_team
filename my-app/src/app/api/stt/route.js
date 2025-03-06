@@ -2,20 +2,23 @@ import { OpenAI } from "openai";
 import fs from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
+import { execSync } from "child_process"; // FFmpeg 실행을 위한 모듈 추가
 
-// OpenAI & ElevenLabs API 설정
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 const VOICE_ID = "Xb7hH8MSUJpSbSDYk0k2"; // ElevenLabs에서 사용할 음성 ID
+const MAX_DURATION = 5; // 최대 허용 녹음 길이 (초)
 
 export async function POST(req) {
   try {
     // (A) FormData에서 파일 가져오기
     const formData = await req.formData();
     const file = formData.get("audioFile");
+    const messagesRaw = formData.get("messages"); 
+    const messages = messagesRaw ? JSON.parse(messagesRaw) : [];
 
     if (!file) {
       return NextResponse.json({ error: "No audio file provided" }, { status: 400 });
@@ -28,8 +31,8 @@ export async function POST(req) {
     // (C) 임시 파일 저장 (Whisper API는 파일을 직접 읽어야 함)
     const tempDir = "/tmp";
     const tempPath = path.join(tempDir, "temp-audio.webm");
+    const trimmedPath = path.join(tempDir, "trimmed-audio.webm"); // 🔹 잘린 오디오 파일
 
-    // 디렉토리가 없으면 생성
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
@@ -37,80 +40,66 @@ export async function POST(req) {
     fs.writeFileSync(tempPath, buffer);
     console.log("✅ 파일 생성 완료:", tempPath);
 
-    // (D) Whisper API 호출 (파일 스트림 사용 필수)
+    // (D) FFmpeg로 오디오 길이 확인
+    let duration = 0;
+    try {
+      duration = parseFloat(
+        execSync(`ffprobe -i ${tempPath} -show_entries format=duration -v quiet -of csv="p=0"`).toString().trim()
+      );
+      console.log(`🎵 오디오 길이: ${duration.toFixed(2)}초`);
+    } catch (err) {
+      console.error("❌ FFmpeg 분석 오류:", err);
+    }
+
+    // (E) 5초 초과 시 자동으로 잘라서 저장
+    if (duration > MAX_DURATION) {
+      console.log(`✂️ 5초 초과! 처음 5초만 잘라서 저장합니다.`);
+      try {
+        execSync(`ffmpeg -i ${tempPath} -t ${MAX_DURATION} -c copy ${trimmedPath} -y`);
+        fs.unlinkSync(tempPath); // 원본 삭제
+      } catch (err) {
+        console.error("❌ FFmpeg 트리밍 오류:", err);
+      }
+    } else {
+      fs.renameSync(tempPath, trimmedPath); // 5초 이하라면 파일 이름만 변경
+    }
+
+    // (F) Whisper API 호출 (음성 → 텍스트 변환)
     const transcription = await openai.audio.transcriptions.create({
-      file: fs.createReadStream(tempPath), // ✅ 파일 스트림으로 전달해야 함
+      file: fs.createReadStream(trimmedPath), 
       model: "whisper-1",
-      language: "ko", // 한국어 설정
+      language: "ko",
     });
 
     console.log("📝 Whisper 변환 결과:", transcription.text);
     const userText = transcription.text;
 
-    // (E) **파일 삭제**
-    if (fs.existsSync(tempPath)) {
-      fs.unlinkSync(tempPath);
+    // (G) **파일 삭제**
+    if (fs.existsSync(trimmedPath)) {
+      fs.unlinkSync(trimmedPath);
     }
 
-    // (F) GPT로 응답 생성
+    // (H) GPT로 응답 생성
+    messages.push({ role: "user", content: userText });
+
     const gptResponse = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         { 
           role: "system", 
-          content: `
-          너는 중국집 '용궁반점'의 사장이다.  
-          20년 전통의 가게이며, 인기 메뉴는 짜장면, 짬뽕, 탕수육이다.
-    
-          ## 스타일
-          - 존댓말 사용.
-          - 방어적인 태도.
-          - 비꼬는 말.
-          - 짜증을 낸다.
-          - 공격적인 태도.
-          - 요구를 들어주지 않는다.
-          - 일단 거절한다.
-          - '죄송'이라는 말을 쓰지 않는다.
-    
-          ## 목표
-          - 대화가 5번 이상 오가기 전까지 고객의 요청을 거부한다.
-          - 고객이 계속 요청하면 마지못해 들어준다.
-    
-          ## 예시
-          1. **주문 요청**
-          - 고객: "짜장면 하나 주세요."
-          - 사장: "알았어요. 기다리세요."
-    
-          2. **불만 제기 - 배달 지연**
-          - 고객: "배달이 너무 늦어요."
-          - 사장: "배달하는 사람이 늦으면 어쩔 수 없죠. 곧 갈 겁니다."
-    
-          3. **서비스 요청 - 단무지 추가**
-          - 고객: "단무지 더 받을 수 있을까요?"
-          - 사장: "단무지는 기본으로 드리는 만큼만 나갑니다."
-    
-          4. **환불 요청 - 음식 문제**
-          - 고객: "음식이 타서 왔어요."
-          - 사장: "사진 찍어서 보내보세요. 확인해보고 판단하겠습니다."
-    
-          5. **추가 요청 - 메뉴 추천**
-          - 고객: "뭐가 제일 맛있어요?"
-          - 사장: "배고프면 다 맛있어요. 그냥 아무거나 드세요."
-    
-          6. **주문 실수**
-          - 고객 : "음식이 잘못 왔어요."
-          - 사장 : "그냥 드시면 안될까요. 저희도 힘듭니다."
-          `
+          content: `너는 중국집 '용궁반점'의 사장이다. 20년 전통의 가게이며, 인기 메뉴는 짜장면, 짬뽕, 탕수육이다.`,
         },
-        { role: "user", content: userText },
+        ...messages,
       ],
     });
-    
 
     const gptReply = gptResponse.choices[0].message.content;
     console.log("🤖 GPT 응답:", gptReply);
 
-    // (G) ElevenLabs TTS API 호출
+    // (I) 응답을 대화 기록에 추가
+    messages.push({ role: "system", content: gptReply });
+
+    // (J) ElevenLabs TTS API 호출
     const ttsUrl = `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`;
     const ttsHeaders = {
       "Content-Type": "application/json",
@@ -121,9 +110,9 @@ export async function POST(req) {
       text: gptReply,
       model_id: "eleven_multilingual_v2",
       voice_settings: {
-        stability: 0.5,  // 감정 변화 정도
-        similarity_boost: 0.8,  // 원래 음성과 유사한 정도
-        style: 1.0,  // 감정 표현 강도
+        stability: 0.5,
+        similarity_boost: 0.8,
+        style: 1.0,
       },
     };
 
@@ -137,13 +126,13 @@ export async function POST(req) {
       return NextResponse.json({ error: `TTS API Error: ${ttsResponse.status}` }, { status: ttsResponse.status });
     }
 
-    const audioBuffer = await ttsResponse.arrayBuffer(); // 바이너리 데이터 가져오기
-    const base64Audio = Buffer.from(audioBuffer).toString("base64"); // Base64 변환
+    const audioBuffer = await ttsResponse.arrayBuffer();
+    const base64Audio = Buffer.from(audioBuffer).toString("base64");
 
     console.log("✅ TTS 변환 완료");
 
-    // (H) 최종 응답 반환 (텍스트 + 음성)
-    return NextResponse.json({ userText, gptReply, audio: base64Audio });
+    // (K) 최종 응답 반환
+    return NextResponse.json({ userText, gptReply, audio: base64Audio, messages });
 
   } catch (error) {
     console.error("❌ Transcribe error:", error);
