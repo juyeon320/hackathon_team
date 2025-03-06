@@ -43,13 +43,26 @@ export async function POST(req) {
 
     console.log("📝 Whisper 변환 결과:", transcription.text);
 
+    const userText = transcription.text;
     // (E) **파일 삭제**
     if (fs.existsSync(tempPath)) {
       fs.unlinkSync(tempPath);
     }
+    const gptResponse = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "너는 친절한 중국집 사장님이야." },
+        { role: "user", content: userText },
+      ],
+    });
 
-    // (F) 변환된 텍스트 반환
-    return NextResponse.json({ text: transcription.text });
+    const gptReply = gptResponse.choices[0].message.content;
+    console.log("🤖 GPT 응답:", gptReply);
+
+    // (G) 변환된 텍스트와 GPT 응답 반환
+    return NextResponse.json({ userText, gptReply });
+
+   
   } catch (error) {
     console.error("❌ Transcribe error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

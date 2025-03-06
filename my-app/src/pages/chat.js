@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import "../styles/globals.css"; 
 import Footer from "@/component/footer";
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const category = searchParams.get("category");
   const difficulty = searchParams.get("difficulty");
 
@@ -46,34 +45,44 @@ export default function ChatPage() {
     setIsRecording(false);
   };
 
-  // 🎤 Whisper API 호출
-  const handleTranscribe = async () => {
+  // 🎤 STT + GPT API 호출
+  const handleTranscribeAndAskGPT = async () => {
     if (audioChunks.length === 0) {
       alert("녹음 데이터가 없습니다.");
       return;
     }
 
-    // Blob 생성
+    // 🔹 Blob 생성
     const blob = new Blob(audioChunks, { type: "audio/webm" });
 
-    // FormData에 담아서 전송
+    // 🔹 FormData에 담아서 전송
     const formData = new FormData();
     formData.append("audioFile", blob, "recording.webm");
- 
+
     try {
-      const res = await fetch("http://localhost:3000/api/stt", {
+      // 📌 STT + GPT API 요청
+      const res = await fetch("/api/stt", {
         method: "POST",
         body: formData,
       });
+
       if (!res.ok) {
-        throw new Error(`Server error: ${res.status}`);
+        throw new Error(`서버 오류: ${res.status}`);
       }
+
       const data = await res.json();
-      
-      // 변환된 텍스트를 채팅 메시지로 추가
-      setMessages((prev) => [...prev, { sender: "user", text: data.text || "변환 실패" }]);
+      const userText = data.userText || "음성 변환 실패";
+      const gptReply = data.gptReply || "GPT 응답 오류!";
+
+      // 📌 UI에 메시지 추가
+      setMessages((prev) => [
+        ...prev,
+        { sender: "user", text: userText },
+        { sender: "bot", text: gptReply },
+      ]);
+
     } catch (err) {
-      console.error("Transcription error:", err);
+      console.error("오류 발생:", err);
       alert("오류 발생: " + err.message);
     }
   };
@@ -102,18 +111,18 @@ export default function ChatPage() {
             className={`px-6 py-3 text-lg font-bold rounded-lg transition-all duration-300
               ${isRecording ? "bg-red-600 text-white animate-pulse" : "bg-gray-400 text-gray-800 hover:bg-gray-500"}`}
           >
-            {isRecording ? "중지" : "시작"}
+            {isRecording ? "⏹️ 중지" : "🎙️ 시작"}
           </button>
         </div>
       </div>
 
-      {/* 음성 → 텍스트 변환 버튼 */}
+      {/* 음성 → 텍스트 변환 후 GPT 질문 버튼 */}
       <button 
-        onClick={handleTranscribe} 
+        onClick={handleTranscribeAndAskGPT} 
         className="mt-4 px-6 py-3 bg-blue-600 text-white text-lg font-bold rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
         disabled={isRecording}
       >
-        변환하기
+        변환 후 질문하기
       </button>
 
       <Footer />
