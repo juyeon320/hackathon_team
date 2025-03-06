@@ -7,9 +7,9 @@ import Footer from "@/component/footer";
 
 export default function HallOfFame() {
   const dummyImages = [
-    "/images/dummy1.jpeg",
-    "/images/dummy2.jpeg",
-    "/images/dummy3.jpeg",
+    "/images/sweetpotato.png",
+    "/images/potato.png",
+    "/images/carrot.png",
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);

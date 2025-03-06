@@ -54,7 +54,7 @@ export default function CategorySelectPage() {
       color: "#555",
       marginTop: "20px",
       boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // 그림자 추가
-      backgroundImage: "url('/images/dummy1.jpeg')", // 이미지 추가
+      backgroundImage: "url('/images/seed.png')", // 이미지 추가
       backgroundSize: "cover", // 이미지가 div에 꽉 차도록 설정
       backgroundPosition: "center", // 이미지 중앙 정렬
     }}
