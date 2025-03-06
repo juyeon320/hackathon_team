@@ -1,134 +1,197 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import "../styles/globals.css";
+import "../styles/globals.css"; 
 import Footer from "@/component/footer";
-
-// Firebase 인스턴스는 utils/firebase.js에서 가져옵니다.
-import { db } from "@/utils/firebase";
-import { collection, getDocs } from "firebase/firestore";
-
-// 🔹 Firebase 설정 관련 코드는 삭제합니다.
-// import { initializeApp } from "firebase/app";
-// import { getFirestore, collection, getDocs } from "firebase/firestore";
-// const firebaseConfig = { ... };
-// const app = initializeApp(firebaseConfig);
-// const db = getFirestore(app);
+import Title from "@/component/Title"; 
 
 export default function HallOfFame() {
-  // 🔹 Firestore에서 불러올 데이터 (배열)
-  const [hallOfFame, setHallOfFame] = useState([]);
+  const dummyImages = [
+    "/images/sweetpotato.png",
+    "/images/potato.png",
+    "/images/carrot.png",
+  ];
+
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [nicknames, setNicknames] = useState(["콜포비아 현", "나는 셉", "헤조"]); // 기본값 설정
 
-  // 🔹 Firestore에서 "hallOfFame" 컬렉션 불러오기
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const ref = collection(db, "hallOfFame");
-        const snapshot = await getDocs(ref);
-
-        // Firestore 문서들 -> JS 객체 배열로 변환
-        const dataArr = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        setHallOfFame(dataArr);
-      } catch (error) {
-        console.error("❌ Firestore 데이터 불러오기 실패:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // 🔹 슬라이드 버튼
   const nextSlide = () => {
-    if (hallOfFame.length === 0) return;
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % hallOfFame.length);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % dummyImages.length);
   };
 
   const prevSlide = () => {
-    if (hallOfFame.length === 0) return;
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + hallOfFame.length) % hallOfFame.length);
-  };
-
-  // 🔹 현재 인덱스 데이터 (빈 배열이면 기본 값 처리)
-  const currentItem = hallOfFame[currentIndex] || {
-    img: "/images/default.png", // Firestore에서 "img" 필드 사용
-    name: "로딩 중...",
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + dummyImages.length) % dummyImages.length);
   };
 
   return (
-      <div
-          className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center relative"
-          style={{ position: "relative" }}
+    <div 
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center relative"
+      style={{ position: "relative" }}
+    >
+      {/* 배경 이미지를 위한 오버레이 div */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: "url('/images/ver1.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          opacity: 0.7,
+        }}
+      />
+      
+      {/* 기존 컨텐츠를 위한 wrapper div */}
+      <div className="relative z-10 flex flex-col items-center w-full">
+      
+      {/* 타이틀 개선 - 헤더 위치로 이동 */}
+      <div 
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          padding: "20px 0",
+          textAlign: "center",
+          zIndex: 20
+        }}
       >
-        {/* 배경 이미지를 위한 오버레이 div */}
-        <div
-            className="absolute inset-0 z-0"
+      <Title>명예의 전당</Title>
+      </div>
+
+      {/* 여백 추가 (헤더 고려) */}
+      <div style={{ marginTop: "80px" }}></div>
+
+      {/* 닉네임 스타일 개선 */}
+      <div 
+        style={{
+          marginTop: "20px",
+          marginBottom: "30px",
+          backgroundColor: "rgba(255, 255, 255, 0.6)",
+          backdropFilter: "blur(8px)",
+          padding: "12px 30px",
+          borderRadius: "20px",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+          border: "2px solid rgba(255, 255, 255, 0.8)"
+        }}
+      >
+        <h2 
+          style={{
+            fontSize: "24px",
+            fontWeight: "700",
+            color: "#333",
+            letterSpacing: "0.03em",
+            textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)"
+          }}
+        >
+          {nicknames[currentIndex]}
+        </h2>
+      </div>
+
+      {/* 이미지 슬라이드 컨테이너 - 마진으로 간격 조정 */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "relative", width: "100%" }}>
+        {/* 이전 버튼 (왼쪽) - position absolute로 배치 */}
+        <div 
+          style={{
+            position: "absolute",
+            left: "calc(50% - 300px)",
+            backgroundColor: "white",
+            borderRadius: "50%",
+            padding: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 6px 12px rgba(0, 0, 0, 0.15)",
+            cursor: "pointer",
+            transition: "all 0.3s ease"
+          }}
+          onClick={prevSlide}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.1)";
+            e.currentTarget.style.backgroundColor = "#f8f8f8";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.backgroundColor = "white";
+          }}
+        >
+          <Image
+            src="/images/left.png"
+            alt="이전"
+            width={32}
+            height={32}
+            className="object-contain"
+          />
+        </div>
+
+        {/* 이미지 컨테이너 개선 */}
+        <div 
+          style={{
+            width: "400px",
+            height: "400px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.5s ease"
+          }}
+        >
+          <div 
             style={{
-              backgroundImage: "url('/images/ver1.png')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              opacity: 0.9,
-              filter: "blur(3px)",
+              position: "relative",
+              width: "380px",
+              height: "380px",
+              borderRadius: "50%",
+              overflow: "hidden",
             }}
-        />
-
-        {/* 기존 컨텐츠를 위한 wrapper div */}
-        <div className="relative z-10 flex flex-col items-center w-full">
-
-          {/* 타이틀 개선 */}
-          <h1 className="text-6xl font-extrabold text-white mb-16 tracking-wider drop-shadow-lg transform hover:scale-105 transition-transform duration-300">
-            명예의 전당
-          </h1>
-
-          {/* 이미지 슬라이드 컨테이너 */}
-          <div className="flex items-center justify-center space-x-8 mt-4">
-            {/* 이전 버튼 (왼쪽) */}
-            <button
-                onClick={prevSlide}
-                className="text-white bg-gray-800/80 backdrop-blur-md rounded-full p-6 shadow-xl hover:bg-gray-900 hover:scale-110 transition-all duration-300 active:scale-95 flex items-center justify-center w-16 h-16"
-                aria-label="이전"
-            >
-              ⬅
-            </button>
-
-            {/* 이미지 컨테이너 개선 */}
-            <div className="w-[400px] h-[400px] bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl transform transition-all duration-500 hover:scale-105">
-              <div className="w-[380px] h-[380px] rounded-full overflow-hidden border-4 border-white/50">
-                <Image
-                    src={currentItem.img}
-                    alt={`캐릭터 ${currentIndex + 1}`}
-                    width={400}
-                    height={400}
-                    className="rounded-full object-cover transform transition-transform duration-500"
-                    priority
-                />
-              </div>
-            </div>
-
-            {/* 다음 버튼 (오른쪽) */}
-            <button
-                onClick={nextSlide}
-                className="text-white bg-gray-800/80 backdrop-blur-md rounded-full p-6 shadow-xl hover:bg-gray-900 hover:scale-110 transition-all duration-300 active:scale-95 flex items-center justify-center w-16 h-16"
-                aria-label="다음"
-            >
-              ➡
-            </button>
+          >
+            <Image 
+              src={dummyImages[currentIndex]}
+              alt={`캐릭터 ${currentIndex + 1}`}
+              width={380} 
+              height={380}
+              className="rounded-full object-cover"
+              style={{ width: '380px', height: '380px' }}
+              priority
+            />
           </div>
+        </div>
 
-          {/* 닉네임 스타일 개선 */}
-          <div className="mt-6 bg-white/20 backdrop-blur-sm px-12 py-4 rounded-full">
-            <h2 className="text-4xl font-bold text-white tracking-wider drop-shadow-lg">
-              {currentItem.name}
-            </h2>
-          </div>
-
-          <Footer />
+        {/* 다음 버튼 (오른쪽) - position absolute로 배치 */}
+        <div 
+          style={{
+            position: "absolute",
+            right: "calc(50% - 300px)",
+            backgroundColor: "white",
+            borderRadius: "50%",
+            padding: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 6px 12px rgba(0, 0, 0, 0.15)",
+            cursor: "pointer",
+            transition: "all 0.3s ease"
+          }}
+          onClick={nextSlide}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.1)";
+            e.currentTarget.style.backgroundColor = "#f8f8f8";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.backgroundColor = "white";
+          }}
+        >
+          <Image
+            src="/images/right.png"
+            alt="다음"
+            width={32}
+            height={32}
+            className="object-contain"
+          />
         </div>
       </div>
+
+      <Footer />
+    </div>
+    </div>
   );
 }

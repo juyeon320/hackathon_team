@@ -48,14 +48,53 @@ export default function CategorySelectPage() {
       
       {/* 기존 컨텐츠를 위한 wrapper div */}
       <div className="relative z-10 flex flex-col items-center w-full">
-      <Title>포비야</Title>
+        {/* 고정된 타이틀 */}
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            padding: "20px 0",
+            textAlign: "center",
+            zIndex: 20
+          }}
+        >
+          <Title>포비야</Title>
+        </div>
 
-        {/* 카테고리 버튼들 */}
-        <div className="flex gap-4 mt-4">
+        {/* 중앙 원형 이미지 (experience.js와 동일한 위치) */}
+        <div className="flex flex-col items-center justify-center" style={{ marginTop: "180px" }}>
+          <div 
+            style={{
+              width: "400px",
+              height: "400px",
+              backgroundColor: "rgba(240, 240, 240, 0.7)", // 배경색 개선
+              borderRadius: "50%", 
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              fontSize: "16px",
+              color: "#555",
+              boxShadow: "0 8px 16px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(255, 255, 255, 0.4)", // 그림자 개선
+              backgroundImage: "url('/images/potseed.png')",
+              backgroundSize: "300px 300px",
+              backgroundPosition: "center",
+              transition: "transform 0.3s ease", // 부드러운 전환 효과
+              backgroundRepeat: "no-repeat"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
+            onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+          >
+          </div>
+        </div>
+
+        {/* 카테고리 버튼들 - 타이틀 아래, 이미지 위 */}
+        <div className="flex gap-4 mt-8" style={{ position: "fixed", top: "80px", zIndex: 15 }}>
           {categories.map(({ name, value }) => (
             <button
               key={value}
-              className="bg-gray-400 text-black px-6 py-3 rounded shadow-md hover:bg-gray-500 transition duration-200"
+              className="text-black rounded-lg px-6 py-3 shadow-md hover:bg-gray-500 transition duration-200" style={{ background: "#16A34A" }}
               onClick={() => handleOpenModal(value)}
             >
               {name}
@@ -72,35 +111,6 @@ export default function CategorySelectPage() {
             onSelectDifficulty={handleSelectDifficulty}
           />
         )}
-
-        {/* 중앙 원형 이미지 */}
-        <div className="flex flex-col items-center justify-center mt-12">
-          <div 
-            style={{
-              width: "400px",
-              height: "400px",
-              backgroundColor: "rgba(240, 240, 240, 0.7)", // 배경색 개선
-              borderRadius: "50%", 
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              fontSize: "16px",
-              color: "#555",
-              marginTop: "20px",
-              boxShadow: "0 8px 16px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(255, 255, 255, 0.4)", // 그림자 개선
-              backgroundImage: "url('/images/potseed.png')",
-              backgroundSize: "300px 300px",
-              backgroundPosition: "center",
-              transition: "transform 0.3s ease", // 부드러운 전환 효과
-              backgroundRepeat: "no-repeat",
-              position: "relative",
-              zIndex: 0
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-          >
-          </div>
-        </div>
 
         <Footer />
       </div>

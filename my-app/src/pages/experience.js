@@ -179,32 +179,31 @@ export default function ExperiencePage() {
                 </div>
 
                 {/* --- 중앙 원형 이미지 (디자인) --- */}
-                <div className="flex flex-col items-center justify-center mt-12">
-                    <div
-                        style={{
-                            width: "400px",
-                            height: "400px",
-                            backgroundColor: "rgba(240, 240, 240, 0.7)",
-                            borderRadius: "50%",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            fontSize: "16px",
-                            color: "#555",
-                            marginTop: "20px",
-                            boxShadow: "0 8px 16px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(255, 255, 255, 0.4)",
-                            backgroundImage: "url('/images/potseed.png')",
-                            backgroundSize: "300px 300px",
-                            backgroundPosition: "center",
-                            transition: "transform 0.3s ease",
-                            backgroundRepeat: "no-repeat",
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-                    >
-                        {/* 필요 시 내부 컨텐츠 */}
-                    </div>
-                </div>
+                <div className="flex flex-col items-center justify-center" style={{ marginTop: "65px" }}>
+          <div 
+            style={{
+              width: "400px",
+              height: "400px",
+              backgroundColor: "rgba(240, 240, 240, 0.7)", // 배경색 개선
+              borderRadius: "50%", 
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              fontSize: "16px",
+              color: "#555",
+              marginTop: "20px",
+              boxShadow: "0 8px 16px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(255, 255, 255, 0.4)", // 그림자 개선
+              backgroundImage: "url('/images/potseed.png')",
+              backgroundSize: "300px 300px",
+              backgroundPosition: "center",
+              transition: "transform 0.3s ease", // 부드러운 전환 효과
+              backgroundRepeat: "no-repeat"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
+            onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+          >
+          </div>
+        </div>
 
                 <Footer />
             </div>

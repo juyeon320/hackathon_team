@@ -12,9 +12,16 @@ export default function ChatPage() {
   const category = searchParams.get("category");
   const difficulty = searchParams.get("difficulty");
 
+  const categoryMapping = {
+    hospital: "병원",
+    restaurant: "중국집",
+    bank: "은행"
+  };
+  const displayCategory = categoryMapping[category] || category;
+
   const MAX_RECORDS = 3; // 🔹 최대 녹음 횟수 설정
   const [messages, setMessages] = useState([
-    { role: "system", content: `안녕하세요! "${category}" 카테고리의 "${difficulty}" 난이도로 대화해요.` },
+    { role: "system", content: `안녕하세요! ${displayCategory} 시물레이션 입니다.` },
   ]);
   const [recordCount, setRecordCount] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
