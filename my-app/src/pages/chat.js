@@ -1,8 +1,8 @@
 "use client";
 
-import "../styles/globals.css"; 
+import { useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import "../styles/globals.css"; 
 import Footer from "@/component/footer";
 
 export default function ChatPage() {
@@ -14,14 +14,67 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([
     { sender: "system", text: `안녕하세요! "${category}" 카테고리의 "${difficulty}" 난이도로 대화해요.` },
   ]);
-  const [isRecording, setIsRecording] = useState(false); // 🎙️ 녹음 상태
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioChunks, setAudioChunks] = useState([]);
+  const mediaRecorderRef = useRef(null);
 
-  const toggleRecording = () => {
-    if (isRecording) {
-      // 🔴 중지 버튼을 누르면 경험치 획득 페이지로 이동
-      router.push(`/experience?difficulty=${difficulty}`);
-    } else {
-      setIsRecording(true);
+  // 🎙️ 녹음 시작
+  const startRecording = async () => {
+    setAudioChunks([]);
+
+    // 브라우저 마이크 권한 요청
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    // MediaRecorder로 녹음 시작
+    const mediaRecorder = new MediaRecorder(stream);
+    mediaRecorderRef.current = mediaRecorder;
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        setAudioChunks((prev) => [...prev, event.data]);
+      }
+    };
+
+    mediaRecorder.start();
+    setIsRecording(true);
+  };
+
+  // ⏹️ 녹음 종료
+  const stopRecording = () => {
+    if (!mediaRecorderRef.current) return;
+    mediaRecorderRef.current.stop();
+    setIsRecording(false);
+  };
+
+  // 🎤 Whisper API 호출
+  const handleTranscribe = async () => {
+    if (audioChunks.length === 0) {
+      alert("녹음 데이터가 없습니다.");
+      return;
+    }
+
+    // Blob 생성
+    const blob = new Blob(audioChunks, { type: "audio/webm" });
+
+    // FormData에 담아서 전송
+    const formData = new FormData();
+    formData.append("audioFile", blob, "recording.webm");
+ 
+    try {
+      const res = await fetch("http://localhost:3000/api/stt", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
+      }
+      const data = await res.json();
+      
+      // 변환된 텍스트를 채팅 메시지로 추가
+      setMessages((prev) => [...prev, { sender: "user", text: data.text || "변환 실패" }]);
+    } catch (err) {
+      console.error("Transcription error:", err);
+      alert("오류 발생: " + err.message);
     }
   };
 
@@ -31,7 +84,7 @@ export default function ChatPage() {
       
       <h1 className="text-3xl font-bold mb-4 text-white">대화 페이지</h1>
 
-      {/* 채팅 내용 */}
+      {/* 채팅 메시지 박스 */}
       <div className="w-full max-w-md h-64 overflow-y-auto border-b-2 border-gray-300 mb-4 p-2 backdrop-blur-md bg-white/10 rounded-lg">
         {messages.map((msg, index) => (
           <p key={index} className={msg.sender === "user" ? "text-right text-blue-300" : "text-left text-white"}>
@@ -42,47 +95,26 @@ export default function ChatPage() {
 
       {/* 중앙 원형 버튼 */}
       <div className="flex flex-col items-center justify-center mt-12">
-        <div 
-          style={{
-            width: "400px",
-            height: "400px",
-            backgroundColor: "#ddd", 
-            borderRadius: "50%", 
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            fontSize: "16px",
-            color: "#555",
-            marginTop: "20px",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" // 그림자 추가
-          }}
-        >
+        <div className="w-[400px] h-[400px] bg-gray-300 rounded-full flex items-center justify-center shadow-lg">
           {/* 버튼 */}
           <button 
-            onClick={toggleRecording} 
-            style={{
-              padding: "15px 30px",
-              fontSize: "20px",
-              fontWeight: "bold",
-              borderRadius: "10px",
-              border: "none",
-              cursor: "pointer",
-              transition: "all 0.3s",
-              backgroundColor: isRecording ? "#d32f2f" : "#bdbdbd",
-              color: "#fff",
-              boxShadow: isRecording ? "0px 0px 15px rgba(211, 47, 47, 0.8)" : "0px 0px 10px rgba(189, 189, 189, 0.5)",
-              animation: isRecording ? "pulse 1.5s infinite" : "none"
-            }}
+            onClick={isRecording ? stopRecording : startRecording} 
+            className={`px-6 py-3 text-lg font-bold rounded-lg transition-all duration-300
+              ${isRecording ? "bg-red-600 text-white animate-pulse" : "bg-gray-400 text-gray-800 hover:bg-gray-500"}`}
           >
             {isRecording ? "중지" : "시작"}
           </button>
         </div>
       </div>
 
-      {/* 상태 표시 */}
-      <p className="text-xl text-white mt-4">
-        {isRecording ? "🎙️ 녹음 중..." : "🔴 대기 중"}
-      </p>
+      {/* 음성 → 텍스트 변환 버튼 */}
+      <button 
+        onClick={handleTranscribe} 
+        className="mt-4 px-6 py-3 bg-blue-600 text-white text-lg font-bold rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
+        disabled={isRecording}
+      >
+        변환하기
+      </button>
 
       <Footer />
     </div>
