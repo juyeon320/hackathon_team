@@ -25,9 +25,7 @@ export default function ChatPage() {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false); // 🔹 AI 음성이 재생 중인지 여부
 
-  useEffect(() => {
-    console.log("🔍 현재 messages 상태:", messages);
-  }, [messages]);
+
   
   // 🎙️ 녹음 시작 (5초 후 자동 중지)
   const startRecording = async () => {
@@ -60,7 +58,7 @@ export default function ChatPage() {
       // 5초 후 자동으로 중지
       setTimeout(() => {
         stopRecording();
-      }, 5000);
+      }, 4000);
       
     } catch (error) {
       alert("마이크 권한을 허용해주세요.");
@@ -142,85 +140,156 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start bg-cover bg-center pt-16"
-      style={{ backgroundImage: "url('/images/background2.jpg')" }}>
-      
-      <Title>포비야</Title>
+    <div 
+  style={{
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100vw",
+    height: "100vh",
+    backgroundImage: "url('/images/background2.jpg')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  }}
+>
 
-{/* 채팅 메시지 박스 */}
-<div className="w-full max-w-md h-64 overflow-y-auto border border-gray-300 mb-4 p-4 bg-white rounded-lg shadow-lg flex flex-col gap-2">
-  {Array.isArray(messages) ? (
-    messages.map((msg, index) => {
-      console.log(`🔍 메시지 ${index}:`, msg); // 디버깅용
+  {/* 🔹 타이틀 (위쪽 고정) */}
+  <Title 
+    style={{
+      position: "absolute",
+      top: "5vh",  // 타이틀이 채팅 박스와 겹치지 않게
+      fontSize: "2rem",
+      fontWeight: "bold",
+      color: "white",
+      textAlign: "center",
+    }}
+  >
+    포비야
+  </Title>
 
-      // 역할 분류
-      const isSystemMessage = msg.role === "system" && index === 0; // 첫 시스템 메시지
-      const isGPTResponse = msg.role === "system" && index !== 0; // 이후 GPT 응답
-      const isUserMessage = msg.role === "user";
+  {/* 🔹 채팅 박스 (가운데 배치, 크기 조정) */}
+  <div 
+    style={{
+      position: "absolute",
+      top: "12vh",  // 타이틀과 간격 확보
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: "70vw", // 📌 너비 줄임
+      maxWidth: "500px",
+      height: "50vh", // 📌 높이 줄임
+      backgroundColor: "white",
+      borderRadius: "12px",
+      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+      padding: "16px",
+      overflowY: "auto",
+      border: "1px solid #ccc",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "flex-start",
+    }}
+  >
+    {Array.isArray(messages) ? (
+      messages.map((msg, index) => {
+        console.log(`🔍 메시지 ${index}:`, msg);
 
-      console.log("u",isUserMessage);
-      return (
-        <div key={index} className={`flex ${isUserMessage ? "justify-start" : "justify-end"}`}>
-          <div
-            className={`p-3 max-w-[75%] rounded-lg text-sm ${
-              isSystemMessage
-                ? "bg-yellow-400 text-black text-center w-full" // 초기 시스템 메시지는 노란색 중앙 정렬
-                : isUserMessage
-                ? "bg-blue-500 text-black self-start" // 유저 메시지는 왼쪽 (파란색)
-                : "bg-gray-600 text-blue self-end" // GPT 응답은 오른쪽 (회색)
-            }`}
-          >
-            {msg.content}
+        // 역할 분류
+        const isSystemMessage = msg.role === "system" && index === 0;
+        const isGPTResponse = msg.role === "system" && index !== 0;
+        const isUserMessage = msg.role === "user";
+
+        return (
+          <div key={index} style={{ display: "flex", justifyContent: isUserMessage ? "flex-start" : "flex-end" }}>
+            <div
+              style={{
+                padding: "12px",
+                maxWidth: "75%",
+                borderRadius: "8px",
+                fontSize: "14px",
+                backgroundColor: isSystemMessage ? "#FFD700" : isUserMessage ? "#3B82F6" : "#6B7280",
+                color: isSystemMessage ? "black" : "white",
+                textAlign: isSystemMessage ? "center" : "left",
+                alignSelf: isUserMessage ? "flex-start" : "flex-end",
+              }}
+            >
+              {msg.content}
+            </div>
           </div>
-        </div>
-      );
-    })
-  ) : (
-    <p className="text-center text-red-500">
-      ⚠️ 오류: messages가 배열이 아닙니다. 현재 값: {JSON.stringify(messages)}
-    </p>
-  )}
+        );
+      })
+    ) : (
+      <p style={{ textAlign: "center", color: "red" }}>
+        ⚠️ 오류: messages가 배열이 아닙니다. 현재 값: {JSON.stringify(messages)}
+      </p>
+    )}
+  </div>
+
+  {/* 🔹 녹음 버튼 (하단 고정, 이미지 버튼 적용) */}
+  <div 
+    style={{
+      position: "absolute",
+      bottom: "20vh", // 📌 화면 하단에서 여유 공간 확보
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: "70px",
+      height: "70px",
+      borderRadius: "50%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+      cursor: "pointer",
+    }}
+    onClick={!isConversationEnded ? startRecording : handleEndConversation} // ✅ 클릭 시 실행 함수 변경
+  >
+    {!isConversationEnded ? (
+      <img 
+        src={isRecording ? "/images/button2.png" : "/images/button1.png"} // ✅ 버튼 상태에 따른 이미지 변경
+        alt="녹음 버튼"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "contain",
+        }}
+      />
+    ) : (
+      <img 
+        src="/images/button2.png" // ✅ 녹음 종료 버튼 이미지
+        alt="종료 버튼"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "contain",
+        }}
+      />
+    )}
+  </div>
+
+ {/* 🔹 음성 자동 재생 */}
+{audioSrc && (
+  <audio 
+    ref={audioRef} 
+    autoPlay 
+    controls 
+    style={{ position: "absolute", bottom: "10vh", display: "none" }} // 📌 버튼 아래쪽 배치 (숨김)
+    onEnded={() => {
+      setIsPlaying(false);
+      if (isConversationEnded) {
+        router.push(`/experience?difficulty=${difficulty}`); // ✅ AI 응답 끝나면 자동 이동!
+      }
+    }}
+  >
+    <source src={audioSrc} type="audio/mp3" />
+    브라우저가 오디오 태그를 지원하지 않습니다.
+  </audio>
+)}
+
+
+  {/* 🔹 푸터 */}
+  <Footer showModal={true} />
 </div>
 
-
-      {/* 🔹 녹음 버튼 또는 종료 버튼 (대화 횟수 초과 시 "종료" 버튼 표시) */}
-      <div className="flex flex-col items-center justify-center mt-12">
-        <div className="w-[400px] h-[400px] bg-gray-300 rounded-full flex items-center justify-center shadow-lg">
-          {!isConversationEnded ? (
-            <button 
-              onClick={startRecording} 
-              className={`px-6 py-3 text-lg font-bold rounded-lg transition-all duration-300
-                ${isRecording ? "bg-red-600 animate-pulse" : "bg-gray-400 text-gray-800 hover:bg-gray-500"}`}
-              disabled={isRecording || isPlaying} // 녹음 중이거나 음성이 재생 중이면 비활성화
-            >
-              {isRecording ? "⏹️ 녹음 중 (5초)" : isPlaying ? "🔊 AI 응답 중" : "🎙️ 시작"}
-            </button>
-          ) : (
-            <button 
-              onClick={handleEndConversation} 
-              className="px-6 py-3 text-lg font-bold bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
-            >
-              종료
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* 음성 자동 재생 */}
-      {audioSrc && (
-        <audio 
-          ref={audioRef} 
-          autoPlay 
-          controls 
-          className="mt-4"
-          onEnded={() => setIsPlaying(false)} // 🔹 음성이 끝나면 다시 녹음 시작 or 종료 체크
-        >
-          <source src={audioSrc} type="audio/mp3" />
-          브라우저가 오디오 태그를 지원하지 않습니다.
-        </audio>
-      )}
-
-      <Footer />
-    </div>
   );
 }
