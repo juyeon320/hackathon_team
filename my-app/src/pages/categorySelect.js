@@ -7,8 +7,8 @@ import Footer from "@/component/footer";
 import Title from "@/component/Title"; 
 // 🔹 카테고리 목록 (API에 맞게 값 설정)
 const categories = [
-  { name: "중국집 주문", value: "restaurant" },
-  { name: "병원 문의", value: "hospital" },
+  { name: "중국집", value: "restaurant" },
+  { name: "병원", value: "hospital" },
   { name: "은행", value: "bank" },
 ];
 
