@@ -1,39 +1,70 @@
-"use client"; // 👈 클라이언트 컴포넌트로 설정
+"use client";
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Title from "@/component/Title"; 
-import { useState } from "react";
+import Title from "@/component/Title";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
+  const [isLoaded, setIsLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  return (
-    <div className="flex flex-col justify-center items-center min-h-screen text-center">
-      <Title>포비야</Title>
-      <p className="text-lg text-green-600 mb-6" style={{ fontWeight: "800", fontSize: "24px" }}>함께 두려움을 극복해요!</p>
+  // Animation effect when page loads
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
-      <div 
-        className="mb-6 bg-white p-4 rounded-full shadow-xl transition-transform duration-300"
-        style={{ transform: isHovered ? "scale(1.03)" : "scale(1)" }} 
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <Image 
-          src="/images/pobby.png" 
-          alt="포비야 로고"
-          width={300}            
-          height={300}
-          className="rounded-full"
-          priority
-        />
+  return (
+    <div className="flex flex-col justify-center items-center min-h-screen text-center px-4">
+      {/* Title with fade-in animation */}
+      <div className={`transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        <Title>포비야</Title>
+        <p className="text-lg text-green-600 mb-6 font-extrabold text-2xl drop-shadow-md">
+          함께 두려움을 극복해요!
+        </p>
       </div>
 
+      {/* Logo with enhanced animations */}
+      <div 
+        className={`mb-8 bg-white p-4 rounded-full shadow-xl transition-all duration-500 
+                  ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}
+                  ${isHovered ? 'scale-105 shadow-2xl' : 'scale-100'}`}
+        style={{ 
+          transitionDelay: "0.2s",
+          transform: isHovered ? "scale(1.05)" : "scale(1)" 
+        }} 
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onTouchStart={() => setIsHovered(true)}
+        onTouchEnd={() => setIsHovered(false)}
+      >
+        <div className="relative overflow-hidden rounded-full">
+          <Image 
+            src="/images/pobby.png" 
+            alt="포비야 로고"
+            width={280}            
+            height={280}
+            className="rounded-full"
+            priority
+          />
+          {/* Subtle highlight effect on hover */}
+          <div className={`absolute inset-0 bg-white bg-opacity-30 
+                          transition-opacity duration-300 rounded-full
+                          ${isHovered ? 'opacity-20' : 'opacity-0'}`}>
+          </div>
+        </div>
+      </div>
+
+      {/* Start button with enhanced feedback */}
       <button
-        className="bg-green-500/80 hover:bg-green-600/80 text-white px-8 py-3 rounded-full text-lg 
-                shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+        className={`bg-green-500/90 hover:bg-green-600 text-white px-10 py-4 rounded-full text-xl
+                  font-medium shadow-lg hover:shadow-xl active:shadow-md active:translate-y-0.5
+                  transition-all duration-300 backdrop-blur-sm
+                  ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}
+        style={{ transitionDelay: "0.4s" }}
         onClick={() => router.push("/categorySelect")}
+        aria-label="시작하기"
       >
         시작하기
       </button>

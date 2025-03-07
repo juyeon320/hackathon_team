@@ -1,114 +1,125 @@
 "use client";
+
 import "../styles/globals.css"; 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import CategoryModal from "@/component/CategoryModal";
 import Footer from "@/component/footer";
 import Title from "@/component/Title"; 
-// 🔹 카테고리 목록 (API에 맞게 값 설정)
+
+// 카테고리 목록
 const categories = [
   { name: "중국집", value: "restaurant" },
-  { name: "병원", value: "hospital" },
-  { name: "은행", value: "bank" },
+  { name: "병원 ", value: "hospital" },
+  { name: "은행", value: "bank"},
 ];
 
 export default function CategorySelectPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(null);
   const router = useRouter();
 
-  // 🔹 모달 열기
+  // Animation on page load
+  useEffect(() => {
+    setIsPageLoaded(true);
+  }, []);
+
+  // 모달 열기
   const handleOpenModal = (categoryValue) => {
     setSelectedCategory(categoryValue);
     setIsModalOpen(true);
   };
 
-  // 🔹 난이도 선택 후 /chat 이동
-  const handleSelectDifficulty = (difficulty) => {
-    if (!selectedCategory || !difficulty) return;
-    router.push(`/chat?category=${selectedCategory}&difficulty=${difficulty}`);
-    setIsModalOpen(false);
-  };
-
   return (
-    <div 
-      className="min-h-screen flex flex-col items-center justify-start bg-cover bg-center pt-16 relative"
-      style={{ position: 'relative' }}
-    >
-      {/* 배경 이미지를 위한 오버레이 div */}
+    <div className="min-h-screen flex flex-col items-center justify-start pt-16 relative">
+      {/* 배경 이미지 */}
       <div 
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 bg-center bg-cover"
         style={{
           backgroundImage: "url('/images/background2.jpg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: 0.8,  
+          opacity: 0.85,
         }}
       />
       
-      {/* 기존 컨텐츠를 위한 wrapper div */}
-      <div className="relative z-10 flex flex-col items-center w-full">
-        {/* 고정된 타이틀 */}
-        <div 
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            padding: "20px 0",
-            textAlign: "center",
-            zIndex: 20
-          }}
-        >
+      {/* 컨텐츠 */}
+      <div className="relative z-10 flex flex-col items-center w-full px-4">
+        {/* 타이틀 */}
+        <div className={`fixed top-0 left-0 right-0 p-5 text-center z-20 transition-all duration-700 ${isPageLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
           <Title>포비야</Title>
         </div>
 
-        {/* 중앙 원형 이미지 (experience.js와 동일한 위치) */}
-        <div className="flex flex-col items-center justify-center" style={{ marginTop: "180px" }}>
-          <div 
-            style={{
-              width: "400px",
-              height: "400px",
-              backgroundColor: "rgba(240, 240, 240, 0.7)", // 배경색 개선
-              borderRadius: "50%", 
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              fontSize: "16px",
-              color: "#555",
-              boxShadow: "0 8px 16px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(255, 255, 255, 0.4)", // 그림자 개선
-              backgroundImage: "url('/images/potseed.png')",
-              backgroundSize: "300px 300px",
-              backgroundPosition: "center",
-              transition: "transform 0.3s ease", // 부드러운 전환 효과
-              backgroundRepeat: "no-repeat"
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-          >
-          </div>
-        </div>
-
-        {/* 카테고리 버튼들 - 타이틀 아래, 이미지 위 */}
-        <div className="flex gap-4 mt-8" style={{ position: "fixed", top: "80px", zIndex: 15 }}>
-          {categories.map(({ name, value }) => (
+        {/* 카테고리 버튼 - 타이틀 아래 배치 */}
+        <div className={`flex flex-wrap justify-center gap-3 transition-all duration-700 ${isPageLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+             style={{ transitionDelay: "0.2s", gap: "20px", margin: "60px" }}>
+          {categories.map(({ name, value, icon }) => (
             <button
               key={value}
-              className="text-black rounded-lg px-6 py-3 shadow-md hover:bg-gray-500 transition duration-200" style={{ background: "#16A34A" }}
-              onClick={() => handleOpenModal(value)}
+              className={`text-white rounded-xl px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center
+                        ${activeCategory === value ? 'bg-green-600 scale-105' : 'bg-green-500 hover:bg-green-600'}`}
+              onClick={() => {
+                setActiveCategory(value);
+                setTimeout(() => handleOpenModal(value), 200);
+              }}
             >
+              <span className="text-xl mr-2">{icon}</span>
               {name}
             </button>
           ))}
         </div>
 
+                        {/* 중앙 원형 이미지 */}
+                        <div className="flex flex-col items-center justify-center" style={{ marginTop: "50px" }}>
+                            <div 
+                                style={{
+                                    width: "320px",
+                                    height: "320px",
+                                    backgroundColor: "rgba(255, 255, 255, 0.85)",
+                                    borderRadius: "50%", 
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    fontSize: "16px",
+                                    color: "#555",
+                                    boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2), 0 0 0 6px rgba(255, 255, 255, 0.5)",
+                                    backgroundImage: "url('/images/potseed.png')",
+                                    backgroundSize: "80%",
+                                    backgroundPosition: "center",
+                                    backgroundRepeat: "no-repeat",
+                                    transition: "transform 0.3s ease",
+                                    
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                            />
+                        </div>
+
+        {/* 설명 텍스트 */}
+        <div className={`mt-6 text-center max-w-lg w-full p-4 transition-all duration-700 
+          ${isPageLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} shadow-none`}
+          style={{ transitionDelay: "0.6s" }}>
+          <p className="text-lg text-black bg-white/30 rounded-lg p-4 w-full shadow-none">
+            위 카테고리 중 하나를 선택하여 시뮬레이션을 시작하세요.
+          </p>
+        </div>
+
+
+
         {/* 카테고리 선택 모달 */}
         {isModalOpen && (
           <CategoryModal
             isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
+            onClose={() => {
+              setIsModalOpen(false);
+              setActiveCategory(null);
+            }}
             selectedCategory={selectedCategory}
-            onSelectDifficulty={handleSelectDifficulty}
+            onSelectDifficulty={(difficulty) => {
+              router.push(`/chat?category=${selectedCategory}&difficulty=${difficulty}`);
+              setIsModalOpen(false);
+            }}
           />
         )}
 
