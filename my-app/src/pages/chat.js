@@ -225,27 +225,10 @@ export default function ChatPage() {
         {displayCategory} - {displayDifficulty}
       </div>
 
-      {/* 메시지 카운터 */}
-      <div
-        style={{
-          position: "absolute",
-          top: "15vh",
-          right: "20px",
-          backgroundColor: "rgba(0,0,0,0.6)",
-          color: "white",
-          padding: "4px 12px",
-          borderRadius: "20px",
-          fontSize: "0.9rem",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
-        }}
-      >
-        {recordCount}/{MAX_RECORDS}
-      </div>
-
       {/* 채팅 박스 */}
       <div 
         style={{
-          position: "absolute",
+          position: "fixed",
           top: "17vh",
           left: "50%",
           transform: "translateX(-50%)",
@@ -263,6 +246,24 @@ export default function ChatPage() {
           justifyContent: "flex-start",
         }}
       >
+
+        {/* 메시지 카운터 */}
+      <div
+        style={{
+          position: "absolute",
+          top: "6%",
+          left: "85%",
+          backgroundColor: "rgba(0,0,0,0.6)",
+          color: "white",
+          padding: "4px 12px",
+          borderRadius: "20px",
+          fontSize: "0.9rem",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+          zIndex: 100,
+        }}
+      >
+        {recordCount}/{MAX_RECORDS}
+      </div>
         {Array.isArray(messages) ? (
           messages.map((msg, index) => {
             const isSystemMessage = msg.role === "system" && index === 0;
@@ -271,7 +272,7 @@ export default function ChatPage() {
 
             return (
               <div 
-                key={index} 
+                key={index} ß
                 style={{ 
                   display: "flex", 
                   justifyContent: isUserMessage ? "flex-end" : "flex-start",
@@ -304,7 +305,6 @@ export default function ChatPage() {
           </p>
         )}
       </div>
-
       {/* 녹음 중 표시기 */}
       {showRecordingIndicator && (
         <div

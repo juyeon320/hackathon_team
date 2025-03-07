@@ -121,8 +121,6 @@ export default function HallOfFame() {
           padding: "10px 0",
           textAlign: "center",
           zIndex: 20,
-          backdropFilter: "blur(8px)",
-          backgroundColor: "rgba(255, 255, 255, 0.7)"
         }}
       >
         <Title>명예의 전당</Title>
