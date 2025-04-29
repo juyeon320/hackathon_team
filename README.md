@@ -18,8 +18,8 @@
 ## 👥 만든 사람들 
 - 팀장 : hazel.jo (조하연)
 - 프론트엔드 개발 : hyun.lee (이주현)
-- AI API 연동 및 로직 구현 : Sep.park (박요셉), aaron.hwang (황지원), yeoni.lee (이주연)
-- 배포 : Siena.eom (엄시연)
+- AI API 연동 및 로직 구현 : sep.park (박요셉), aaron.hwang (황지원), yeoni.lee (이주연)
+- 배포 : siena.eom (엄시연)
 
 ---
 
