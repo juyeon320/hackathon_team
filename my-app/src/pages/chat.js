@@ -28,38 +28,7 @@ export default function ChatPage() {
   const displayDifficulty =difficultyLabels[difficulty]|| difficulty;
 
   const MAX_RECORDS = 3; // 최대 녹음 횟수 설정
-  const [messages, setMessages] = useState([
-    { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
-언제나 나를, 언제나 나를 기다리던 너의 아파트 
-` },
-    { role: "user", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
-언제나 나를, 언제나 나를 기다리던 너의 아파트 
-` },
-    { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
-언제나 나를, 언제나 나를 기다리던 너의 아파트 
-` },
-{ role: "user", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
-  언제나 나를, 언제나 나를 기다리던 너의 아파트 
-  ` },
-      { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
-  언제나 나를, 언제나 나를 기다리던 너의 아파트 
-  ` },
-  { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
-    언제나 나를, 언제나 나를 기다리던 너의 아파트 
-    ` },
-        { role: "user", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
-    언제나 나를, 언제나 나를 기다리던 너의 아파트 
-    ` },
-        { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
-    언제나 나를, 언제나 나를 기다리던 너의 아파트 
-    ` },
-    { role: "user", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
-      언제나 나를, 언제나 나를 기다리던 너의 아파트 
-      ` },
-          { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
-      언제나 나를, 언제나 나를 기다리던 너의 아파트 
-      ` },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [recordCount, setRecordCount] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [audioSrc, setAudioSrc] = useState(null);
