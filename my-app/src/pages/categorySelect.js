@@ -48,7 +48,7 @@ export default function CategorySelectPage() {
       <div className="relative z-10 flex flex-col items-center w-full px-4">
         {/* 타이틀 */}
         <div className={`fixed top-0 left-0 right-0 p-5 text-center z-20 transition-all duration-700 ${isPageLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
-          <Title>포비야</Title>
+          <Title>그래유</Title>
         </div>
 
         {/* 카테고리 버튼 - 타이틀 아래 배치 */}

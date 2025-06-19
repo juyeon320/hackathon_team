@@ -29,7 +29,36 @@ export default function ChatPage() {
 
   const MAX_RECORDS = 3; // 최대 녹음 횟수 설정
   const [messages, setMessages] = useState([
-    { role: "system", content: `안녕하세요! ${displayCategory} 시물레이션 입니다.` },
+    { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
+언제나 나를, 언제나 나를 기다리던 너의 아파트 
+` },
+    { role: "user", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
+언제나 나를, 언제나 나를 기다리던 너의 아파트 
+` },
+    { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
+언제나 나를, 언제나 나를 기다리던 너의 아파트 
+` },
+{ role: "user", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
+  언제나 나를, 언제나 나를 기다리던 너의 아파트 
+  ` },
+      { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
+  언제나 나를, 언제나 나를 기다리던 너의 아파트 
+  ` },
+  { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
+    언제나 나를, 언제나 나를 기다리던 너의 아파트 
+    ` },
+        { role: "user", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
+    언제나 나를, 언제나 나를 기다리던 너의 아파트 
+    ` },
+        { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
+    언제나 나를, 언제나 나를 기다리던 너의 아파트 
+    ` },
+    { role: "user", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
+      언제나 나를, 언제나 나를 기다리던 너의 아파트 
+      ` },
+          { role: "system", content: `별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나. 
+      언제나 나를, 언제나 나를 기다리던 너의 아파트 
+      ` },
   ]);
   const [recordCount, setRecordCount] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
@@ -43,6 +72,14 @@ export default function ChatPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showRecordingIndicator, setShowRecordingIndicator] = useState(false); // 녹음 중 표시기
   
+  const chatContainerRef = useRef(null); // 자동 스크롤
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+  
+
   // 녹음 시작 (4초 후 자동 중지)
   const startRecording = async () => {
     if (isRecording || isPlaying || recordCount >= MAX_RECORDS) return;
@@ -181,139 +218,169 @@ export default function ChatPage() {
   return (
     <div 
       style={{
-        position: "fixed",
-        top: "0",
-        left: "0",
         width: "100vw",
         height: "100vh",
-        backgroundImage: "url('/images/background2.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        display: "flex",
+        display: "flex",        // 👉 가로로 나란히
         flexDirection: "column",
-        alignItems: "center",
+        backgroundColor: "white",
+        overflow: "hidden", // 👉 스크롤바 숨김
       }}
     >
       {/* 타이틀 */}
-      <Title 
-        style={{
-          position: "absolute",
-          top: "5vh",
-          fontSize: "2rem",
-          fontWeight: "bold",
-          color: "white",
-          textAlign: "center",
-          textShadow: "2px 2px 4px rgba(0,0,0,0.5)"
-        }}
-      >
-        포비야
-      </Title>
-
-      {/* 카테고리 및 난이도 표시 */}
       <div
         style={{
           position: "absolute",
-          top: "10vh",
-          backgroundColor: "rgba(255,255,255,0.8)",
-          padding: "8px 16px",
-          borderRadius: "20px",
-          fontSize: "1rem",
-          fontWeight: "bold",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
-        }}
-      >
-        {displayCategory} - {displayDifficulty}
-      </div>
-
-      {/* 채팅 박스 */}
-      <div 
-        style={{
-          position: "fixed",
-          top: "17vh",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "80vw", 
-          maxWidth: "500px",
-          height: "55vh",
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          borderRadius: "12px",
-          boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.3)",
-          padding: "16px",
-          overflowY: "auto",
-          border: "1px solid #ccc",
+          top: "4vh",
+          left: "24px",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
+          alignItems: "center",
         }}
       >
-
-        {/* 메시지 카운터 */}
+      </div>
       <div
         style={{
-          position: "absolute",
-          top: "6%",
-          left: "85%",
-          backgroundColor: "rgba(0,0,0,0.6)",
-          color: "white",
-          padding: "4px 12px",
-          borderRadius: "20px",
-          fontSize: "0.9rem",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-          zIndex: 100,
+          height: "120px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "0 24px",
+          backgroundColor: "#fff",
+          zIndex: 1000,
         }}
       >
-        {recordCount}/{MAX_RECORDS}
-      </div>
-        {Array.isArray(messages) ? (
-          messages.map((msg, index) => {
-            const isSystemMessage = msg.role === "system" && index === 0;
-            const isGPTResponse = msg.role === "system" && index !== 0;
-            const isUserMessage = msg.role === "user";
+       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <img src="/images/logo-text.png" style={{ height: "200px" }} />
+        <button style={{
+          border: "2px solid #aee2ff",
+          borderRadius: "8px",
+          padding: "6px 12px",
+          backgroundColor: "white",
+          color: "#333",
+          fontWeight: "bold",
+          cursor: "pointer"
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0faff"}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
+        >
+          다시시작
+        </button>
 
-            return (
-              <div 
-                key={index} ß
-                style={{ 
-                  display: "flex", 
-                  justifyContent: isUserMessage ? "flex-end" : "flex-start",
-                  marginBottom: "10px",
-                  animationName: index === messages.length - 1 ? "fadeIn" : "none",
-                  animationDuration: "0.5s"
-                }}
-              >
-                <div
-                  style={{
-                    padding: "12px",
-                    maxWidth: "75%",
-                    borderRadius: "16px",
-                    fontSize: "14px",
-                    backgroundColor: isSystemMessage ? "#FFD700" : isUserMessage ? "#3B82F6" : "#FFD700",
-                    color: isUserMessage ? "white" : "black",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                    borderTopLeftRadius: isUserMessage ? "16px" : isSystemMessage ? "16px" : "4px",
-                    borderTopRightRadius: isUserMessage ? "4px" : "16px",
-                  }}
-                >
-                  {msg.content}
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <p style={{ textAlign: "center", color: "red" }}>
-            ⚠️ 오류: messages가 배열이 아닙니다. 현재 값: {JSON.stringify(messages)}
-          </p>
-        )}
+        <button style={{
+          border: "2px solid #aee2ff",
+          borderRadius: "8px",
+          padding: "6px 12px",
+          backgroundColor: "white",
+          color: "#333",
+          fontWeight: "bold",
+          cursor: "pointer"
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0faff"}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
+        >
+          나가기
+        </button>
+        </div>
+        <div style={{ fontSize: "18px" }}>
+          <span style={{ color: "black", fontWeight: "500" }}>마이크가 안되시나요? </span>
+          <a
+            href="#"
+            style={{ color: "#80cfff", textDecoration: "underline", fontWeight: "500" }}
+          >
+            채팅으로 말하기 &gt;
+          </a>
+        </div>
       </div>
+      
+{/* 채팅 박스 */}
+<div 
+  ref={chatContainerRef}
+  className="chat-scroll"
+  style={{
+    height: "calc(100vh - 300px)", // 120px 헤더 + 100px 버튼 기준
+      overflowY: "auto",
+      padding: "80px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "16px",
+      scrollbarWidth: "bold",
+      scrollbarColor: " #9FDDFF #FFFFFF", // ✅ Firefox 대응
+      msOverflowStyle: "auto",
+  }}
+>
+  <div
+    style={{
+      width: "100%",
+      padding: "80px 80px", // 좌우 여백만 적절히
+      display: "flex",
+      flexDirection: "column",
+      gap: "16px",
+    }}
+  >
+    {Array.isArray(messages) ? (
+      messages.map((msg, index) => {
+        const isSystemMessage = msg.role === "system" && index === 0;
+        const isGPTResponse = msg.role === "system" && index !== 0;
+        const isUserMessage = msg.role === "user";
+
+        return (
+          <div
+            key={index}
+            style={{
+              display: "flex",
+              justifyContent: isUserMessage ? "flex-end" : "flex-start",
+            }}
+          >
+            
+            {!isUserMessage && (
+              
+            <img
+              src="/images/cloud.png"
+              alt="구름 프로필"
+              style={{
+                width: "60px", // ✅ 크기 키움
+                height: "60px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                marginRight: "16px", // ✅ 말풍선과 거리 띄움
+                marginTop: "4px"
+              }}
+            />
+          )}
+          {/* ✅ GPT 채팅 말풍선 */}
+            <div
+              style={{
+                maxWidth: "70%",
+                padding: "12px 16px",
+                borderRadius: "16px",
+                backgroundColor: isUserMessage ? "#ffffff" : "#ffffff",
+                color: "#333",
+                fontSize: "18px",
+                whiteSpace: "pre-wrap",
+                border: isUserMessage ? "none" : "2px solid #aee2ff",
+              }}
+            >
+              {msg.content}
+            </div>
+          </div>
+        );
+      })
+    ) : (
+      <p style={{ textAlign: "center", color: "red" }}>
+        ⚠️ 오류: messages가 배열이 아닙니다. 현재 값: {JSON.stringify(messages)}
+      </p>
+    )}
+  </div>
+</div>
+
       {/* 녹음 중 표시기 */}
       {showRecordingIndicator && (
         <div
           style={{
             position: "absolute",
-            bottom: "30vh",
+            bottom: "16vh",
             left: "50%",
             transform: "translateX(-50%)",
-            backgroundColor: "rgba(220, 20, 60, 0.8)",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
             color: "white",
             padding: "8px 16px",
             borderRadius: "20px",
@@ -321,7 +388,7 @@ export default function ChatPage() {
             fontWeight: "bold",
             display: "flex",
             alignItems: "center",
-            boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
+            //boxShadow: "0 4px 8px rgba(255, 255, 255, 0.3)",
             animation: "pulse 1s infinite"
           }}
         >
@@ -334,11 +401,12 @@ export default function ChatPage() {
       <div 
         style={{
           position: "absolute",
-          bottom: "16vh",
+          bottom: "6vh",
           left: "50%",
           transform: "translateX(-50%)",
-          width: "80px",
-          height: "80px",
+          width: "100px",
+          height: "100px",
+          backgroundColor: isRecording ? "#9FDDFF" : "#9FDDFF",
           borderRadius: "50%",
           display: "flex",
           alignItems: "center",
@@ -358,16 +426,24 @@ export default function ChatPage() {
         onMouseDown={(e) => e.currentTarget.style.transform = "translateX(-50%) scale(0.95)"}
         onMouseUp={(e) => e.currentTarget.style.transform = "translateX(-50%) scale(1)"}
       >
-        <img 
-          src={isRecording ? "/images/button2.png" : isConversationEnded ? "/images/button2.png" : "/images/button1.png"}
-          alt={isConversationEnded ? "종료 버튼" : "녹음 버튼"}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            filter: isRecording ? "brightness(0.8)" : "brightness(1)"
-          }}
-        />
+       {isRecording ? (
+        <div style={{
+          width: "20px",
+          height: "20px",
+          backgroundColor: "white",
+          borderRadius: "4px",
+        }} />
+      ) : (
+        <div style={{
+          width: 0,
+          height: 0,
+          borderTop: "12px solid transparent",
+          borderBottom: "12px solid transparent",
+          borderLeft: "18px solid white",
+          marginLeft: "4px",
+        }} />
+      )}
+
       </div>
 
       {/* 버튼 도움말 */}
@@ -390,6 +466,8 @@ export default function ChatPage() {
           {isConversationEnded ? "대화 종료하기" : "여기를 눌러 말하세요"}
         </div>
       )}
+      
+      
 
       {/* 음성 자동 재생 (숨김) */}
       {audioSrc && (
@@ -409,6 +487,27 @@ export default function ChatPage() {
           브라우저가 오디오 태그를 지원하지 않습니다.
         </audio>
       )}
+      {/* 결과 전송하기 버튼 */}
+      <button
+        onClick={handleEndConversation}
+        style={{
+          position: "absolute",
+          bottom: "6vh",
+          right: "5vw",
+          backgroundColor: "#9FDDFF",
+          color: "white",
+          fontWeight: "bold",
+          border: "none",
+          borderRadius: "12px",
+          padding: "14px 24px",
+          fontSize: "1.2rem",
+          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+          cursor: "pointer",
+        }}
+      >
+        결과 전송하기
+      </button>
+
 
       {/* 스타일 - 애니메이션 */}
       <style jsx>{`
@@ -424,7 +523,7 @@ export default function ChatPage() {
       `}</style>
 
       {/* 푸터 */}
-      <Footer showModal={true} />
+      
     </div>
   );
 }
