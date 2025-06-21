@@ -28,7 +28,20 @@ export default function ChatPage() {
   const displayDifficulty =difficultyLabels[difficulty]|| difficulty;
 
   const MAX_RECORDS = 3; // 최대 녹음 횟수 설정
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    { role: "system", content: `그래유와의 대화가 시작되었습니다.` },
+    { role: "user", content: "솔직히 엘빈이 살았어야 한다 ㅇㅈ?ㅇㅇㅈ" },
+    { role: "system", content: `신죠오 사사게오` },
+    { role: "user", content: `리바이 사랑해` },
+    { role: "system", content: `땅울림에서 사는 방법` },
+    { role: "user", content: "삽으로 땅파고 들어가면 되지 않음? " },
+    { role: "system", content: `솔직히 페트라는 살렸어야한다.` },
+    { role: "user", content: "대화를 분석 중입니다..." },
+    { role: "system", content: `신죠오 사사게오` },
+    { role: "user", content: "대화를 분석 중입니다..." },
+    { role: "system", content: `신죠오 사사게오` },
+      
+  ]);
   const [recordCount, setRecordCount] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [audioSrc, setAudioSrc] = useState(null);
@@ -181,7 +194,7 @@ export default function ChatPage() {
 
   // "종료" 버튼 클릭 시 경험치 페이지로 이동
   const handleEndConversation = () => {
-    router.push(`/experience?difficulty=${difficulty}`);
+    router.push(`/experience`);
   };
 
   return (
@@ -230,6 +243,7 @@ export default function ChatPage() {
         }}
         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0faff"}
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
+        onClick={() => router.push("/")}
         >
           다시시작
         </button>
@@ -245,7 +259,7 @@ export default function ChatPage() {
         }}
         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0faff"}
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
-        >
+        onClick={() => router.push("/")}>
           나가기
         </button>
         </div>
@@ -448,7 +462,7 @@ export default function ChatPage() {
           onEnded={() => {
             setIsPlaying(false);
             if (isConversationEnded) {
-              router.push(`/experience?difficulty=${difficulty}`);
+              router.push(`/experience`);
             }
           }}
         >
@@ -456,7 +470,7 @@ export default function ChatPage() {
           브라우저가 오디오 태그를 지원하지 않습니다.
         </audio>
       )}
-      {/* 결과 전송하기 버튼 */}
+      {recordCount >= 0 && (
       <button
         onClick={handleEndConversation}
         style={{
@@ -476,7 +490,7 @@ export default function ChatPage() {
       >
         결과 전송하기
       </button>
-
+    )}
 
       {/* 스타일 - 애니메이션 */}
       <style jsx>{`

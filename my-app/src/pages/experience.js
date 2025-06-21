@@ -1,4 +1,5 @@
 "use client";
+import MainTopBar from "@/component/MainTopBar";
 
 import "../styles/globals.css";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -109,6 +110,9 @@ export default function ExperiencePage() {
         }, frameRate);
     }
 
+    const [currentTab, setCurrentTab] = useState('script');
+
+
     // 홈으로 돌아가기 버튼
     const goToHome = () => {
         router.push('/');
@@ -116,179 +120,105 @@ export default function ExperiencePage() {
 
     // 새 대화하기 버튼
     const startNewChat = () => {
-        router.push('/category');
+        router.push('/');
     };
 
     return (
-        <div
-            className="min-h-screen flex flex-col items-center justify-start bg-cover bg-center pt-16 relative"
-            style={{ position: 'relative' }}
-        >
-            {/* 배경 이미지 */}
-            <div
-                className="absolute inset-0 z-0"
+        <div className="w-screen bg-white relative" style={{ paddingTop: "220px" }}>
+
+        <MainTopBar showMicNotice={false} />
+
+        {/* 🔹 탭 메뉴 */}
+        <div className="flex justify-end w-full mt-10 mb-6 pr-6 z-10">
+        <div className="flex gap-2">
+            <button
                 style={{
-                    backgroundImage: "url('/images/background3.jpg')",
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    opacity: 0.85,
+                backgroundColor: currentTab === 'script' ? '#91D3F0' : '#ffffff',
+                color: currentTab === 'script' ? '#ffffff' : '#91D3F0',
+                border: '1.5px solid #9FDDFF',
+                fontWeight: '600'
                 }}
-            />
+                className="px-4 py-2 rounded-lg "
+                onClick={() => setCurrentTab('script')}
+            >
+                대화 스크립트
+            </button>
 
-            {/* 전체 컨테이너 */}
-            <div className="relative z-10 flex flex-col items-center w-full">
-                {/* 로딩 표시 */}
-                {isLoading ? (
-                    <div className="flex flex-col items-center justify-center h-56">
-                        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="mt-4 text-white text-lg font-bold">경험치 불러오는 중...</p>
-                    </div>
-                ) : (
-                    <>
+            <button
+                style={{
+                backgroundColor: currentTab === 'word' ? '#91D3F0' : '#ffffff',
+                color: currentTab === 'word' ? '#ffffff' : '#91D3F0',
+                border: '1.5px solid #9FDDFF',
+                fontWeight: '600'
+                }}
+                className="px-4 py-2 rounded-lg "
+                onClick={() => setCurrentTab('word')}
+            >
+                워드 클라우드
+            </button>
 
-                        {/* 획득한 XP 표시 */}
-                        <div className="text-center mb-6 relative">
-                            <div
-                                className="text-6xl font-bold"
-                                style={{ 
-                                    color: barColor, 
-                                    textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-                                    animation: showConfetti ? "pulse 2s infinite" : "none"
-                                }}
-                            >
-                                + {addedXP} XP
-                            </div>
-                            {showConfetti && (
-                                <div 
-                                    className="absolute top-0 left-1/2 transform -translate-x-1/2"
-                                    style={{
-                                        color: "#FFD700",
-                                        fontSize: "2rem",
-                                        animation: "confetti 1s ease-out infinite",
-                                        opacity: 0.8
-                                    }}
-                                >
-                                    🎉
-                                </div>
-                            )}
-                        </div>
+            <button
+                style={{
+                backgroundColor: currentTab === 'summary' ? '#91D3F0' : '#ffffff',
+                color: currentTab === 'summary' ? '#ffffff' : '#91D3F0',
+                border: '1.5px solid #9FDDFF',
+                fontWeight: '600'
+                }}
+                className="px-4 py-2 rounded-lg "
+                onClick={() => setCurrentTab('summary')}
+            >
+                수치 요약
+            </button>
+        </div>
+        </div>
+       
 
-                        {/* 경험치 표시 */}
-                        <div className="text-center mb-2">
-                            <span className="text-white font-bold text-xl" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}>
-                                {animatedXP} / {maxXP} XP
-                            </span>
-                        </div>
 
-                        {/* 경험치 바 */}
-                        <div
-                            style={{
-                                width: "80vw",
-                                maxWidth: "700px",
-                                height: "28px",
-                                backgroundColor: "rgba(245, 245, 245, 0.9)",
-                                borderRadius: "14px",
-                                overflow: "hidden",
-                                border: "2px solid rgba(200, 200, 200, 0.7)",
-                                position: "relative",
-                                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: `${xpPercentage}%`,
-                                    height: "100%",
-                                    backgroundColor: barColor,
-                                    transition: "width 0.3s ease-out",
-                                    borderRadius: "10px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "flex-end",
-                                    paddingRight: "8px"
-                                }}
-                            >
-                                {xpPercentage > 10 && (
-                                    <span style={{
-                                        color: "#fff",
-                                        fontSize: "14px",
-                                        fontWeight: "bold",
-                                        textShadow: "0 1px 2px rgba(0,0,0,0.3)"
-                                    }}>
-                                        {Math.round(xpPercentage)}%
-                                    </span>
-                                )}
-                            </div>
-                        </div>
+        {/* 말풍선 콘텐츠 */}
+        <div className="w-full max-w-5xl mt-4 border-2 rounded-lg p-6 "
+            style={{
+                borderColor: "#9FDDFF", // 외곽 박스 테두리
+                backgroundColor: "#ffffff" // 전체 박스 배경
+            }}
+            >
+            <div className="flex items-start gap-3 mb-6">
+                {/* 말풍선 왼쪽 아이콘 */}
+                <div
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{
+                    backgroundColor: "#ffffff", // 구름 원 배경색
+                    color: "#ffffff", // 아이콘 색상
+                    fontSize: "18px"
+                }}
+            >
+            ☁️
+            </div>
 
-                        {/* 중앙 원형 이미지 */}
-                        <div className="flex flex-col items-center justify-center" style={{ marginTop: "50px" }}>
-                            <div 
-                                style={{
-                                    width: "320px",
-                                    height: "320px",
-                                    backgroundColor: "rgba(255, 255, 255, 0.85)",
-                                    borderRadius: "50%", 
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    fontSize: "16px",
-                                    color: "#555",
-                                    boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2), 0 0 0 6px rgba(255, 255, 255, 0.5)",
-                                    backgroundImage: "url('/images/potseed.png')",
-                                    backgroundSize: "80%",
-                                    backgroundPosition: "center",
-                                    backgroundRepeat: "no-repeat",
-                                    transition: "transform 0.3s ease",
-                                    animation: showConfetti ? "float 3s ease-in-out infinite" : "none"
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-                                onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-                            />
-                        </div>
-
-                        {/* 버튼 영역 */}
-                        <div className="mt-10 flex gap-4">
-                            <button
-                                onClick={goToHome}
-                                className="px-6 py-3 bg-gray-700 text-white rounded-lg font-semibold transition-all hover:bg-gray-800 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
-                            >
-                                
-                            </button>
-                            <button
-                                onClick={startNewChat}
-                                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold transition-all hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                
-                            </button>
-                        </div>
-                    </>
-                )}
-
-                {/* 애니메이션 스타일 */}
-                <style jsx>{`
-                    @keyframes pulse {
-                        0% { transform: scale(1); }
-                        50% { transform: scale(1.05); }
-                        100% { transform: scale(1); }
-                    }
-                    @keyframes confetti {
-                        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-                        100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
-                    }
-                    @keyframes float {
-                        0% { transform: translateY(0px); }
-                        50% { transform: translateY(-10px); }
-                        100% { transform: translateY(0px); }
-                    }
-                    @keyframes bounceIn {
-                        0% { transform: scale(0.8); opacity: 0; }
-                        70% { transform: scale(1.05); opacity: 1; }
-                        100% { transform: scale(1); opacity: 1; }
-                    }
-                `}</style>
-
-                <Footer />
+            {/* 말풍선 본문 */}
+            <div
+            className="px-4 py-3 rounded-lg leading-relaxed max-w-xl"
+            style={{
+                backgroundColor: "#ffffff", // 말풍선 배경색
+                border: "1.5px solid ##9FDDFF", // 테두리
+                color: "#333333" // 텍스트 색
+            }}
+            >
+            별빛이 흐르는 다리를 건너 바람 부는 갈대 숲을 지나.<br />
+            언제나 나를, 언제나 나를 기다리던 너의 아파트
             </div>
         </div>
-    );
+
+        {/* 종료 안내 텍스트 */}
+        <div
+            className="text-center mt-4"
+            style={{
+            color: "#999999", // 안내 메시지 색상
+            fontSize: "15px"
+            }}
+        >
+            여기서 대화가 종료되었어요.
+        </div>
+        </div>
+    </div>
+    )
 }

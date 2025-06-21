@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 
-export default function MainTopBar() {
+export default function MainTopBar({ showMicNotice = true }) {
   return (
     <div
       style={{
@@ -21,7 +21,7 @@ export default function MainTopBar() {
     >
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
         <img src="/images/logo-text.png" alt="로고" style={{ height: "200px" }} />
-        <Link href="/categorySelect">
+        <Link href="/">
           <button
             style={{
               border: "2px solid #aee2ff",
@@ -53,18 +53,21 @@ export default function MainTopBar() {
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "white")}
           >
             나가기
-          </button>
+            </button>
         </Link>
       </div>
-      <div style={{ fontSize: "18px" }}>
-        <span style={{ color: "black", fontWeight: "500" }}>마이크가 안되시나요? </span>
-        <Link
-          href="#"
-          style={{ color: "#80cfff", textDecoration: "underline", fontWeight: "500" }}
-        >
-          채팅으로 말하기 &gt;
-        </Link>
-      </div>
+
+      {showMicNotice && (
+        <div style={{ fontSize: "18px" }}>
+          <span style={{ color: "black", fontWeight: "500" }}>마이크가 안되시나요? </span>
+          <Link
+            href="#"
+            style={{ color: "#80cfff", textDecoration: "underline", fontWeight: "500" }}
+          >
+            채팅으로 말하기 &gt;
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
