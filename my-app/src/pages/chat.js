@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import "../styles/globals.css"; 
-import Footer from "@/component/footer";
-import Title from "@/component/Title"; 
+//import Footer from "@/component/footer";
+//import Title from "@/component/Title"; 
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
@@ -12,36 +12,8 @@ export default function ChatPage() {
   const category = searchParams.get("category");
   const difficulty = searchParams.get("difficulty");
 
-  const categoryMapping = {
-    hospital: "병원",
-    restaurant: "중국집",
-    bank: "은행"
-  };
-
-  const difficultyLabels = {
-    low: "친절한",
-    middle: "평범한",
-    high: "까칠한",
-  };
-
-  const displayCategory = categoryMapping[category] || category;
-  const displayDifficulty =difficultyLabels[difficulty]|| difficulty;
-
   const MAX_RECORDS = 3; // 최대 녹음 횟수 설정
-  const [messages, setMessages] = useState([
-    { role: "system", content: `그래유와의 대화가 시작되었습니다.` },
-    { role: "user", content: "솔직히 엘빈이 살았어야 한다 ㅇㅈ?ㅇㅇㅈ" },
-    { role: "system", content: `신죠오 사사게오` },
-    { role: "user", content: `리바이 사랑해` },
-    { role: "system", content: `땅울림에서 사는 방법` },
-    { role: "user", content: "삽으로 땅파고 들어가면 되지 않음? " },
-    { role: "system", content: `솔직히 페트라는 살렸어야한다.` },
-    { role: "user", content: "대화를 분석 중입니다..." },
-    { role: "system", content: `신죠오 사사게오` },
-    { role: "user", content: "대화를 분석 중입니다..." },
-    { role: "system", content: `신죠오 사사게오` },
-      
-  ]);
+  const [messages, setMessages] = useState([]);
   const [recordCount, setRecordCount] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [audioSrc, setAudioSrc] = useState(null);
@@ -142,16 +114,26 @@ export default function ChatPage() {
         method: "POST",
         body: formData,
       });
-
+      
+      
       const data = await res.json();
+      console.log("📦 서버 응답 전체 확인:", data);
       const { userText, gptReply, audio, messages: updatedMessages } = data;
       console.log("🎤 유저 입력:", userText);
       console.log("🤖 GPT 응답:", gptReply);
       console.log("🔄 업데이트된 메시지 리스트:", updatedMessages);
+      console.log("🧾 handleTranscribeAndAskGPT 호출 후 messages:", messages);
       
-      // "대화를 분석 중입니다..." 메시지 제거하고 업데이트된 메시지로 교체
-      setMessages(updatedMessages);
-
+      
+      //gptReply = data.gptReply;
+      
+      const newMessages = updatedMessages; // ✅ 여기를 받아서
+      const audioBase64 = data.audio;
+      
+      setMessages(newMessages); // ✅ 여기서 화면에 띄울 messages 최신화
+      setAudioSrc(`data:audio/mpeg;base64,${audioBase64}`);
+      
+      
       if (audio) {
         const audioData = `data:audio/mp3;base64,${audio}`;
         setAudioSrc(audioData);
@@ -196,6 +178,7 @@ export default function ChatPage() {
   const handleEndConversation = () => {
     router.push(`/experience`);
   };
+  console.log("🧾 렌더링 시점 messages:", messages);
 
   return (
     <div 
@@ -301,10 +284,10 @@ export default function ChatPage() {
   >
     {Array.isArray(messages) ? (
       messages.map((msg, index) => {
-        const isSystemMessage = msg.role === "system" && index === 0;
-        const isGPTResponse = msg.role === "system" && index !== 0;
+        //const isSystemMessage = msg.role === "system" && index === 0;
+        //const isGPTResponse = msg.role === "system" && index !== 0;
         const isUserMessage = msg.role === "user";
-
+        //const isGPTResponse = msg.role === "system";
         return (
           <div
             key={index}
