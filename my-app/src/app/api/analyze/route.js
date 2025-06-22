@@ -2,8 +2,7 @@ export async function POST(req) {
     const { messages } = await req.json();
   
     const analysisPrompt = `
-      당신은 학생 감정 분석 전문 AI입니다.
-      아래는 한 학생과 AI의 전체 대화입니다:
+      Read the following dialog, and analyze the emotional state of the student based on their messages.
   
       ${messages.map(m => `${m.role === "user" ? "학생" : "AI"}: ${m.content}`).join("\n")}
   

@@ -119,7 +119,7 @@ export default function ChatPage() {
     const blob = new Blob(chunks, { type: "audio/webm" });
     const formData = new FormData();
     formData.append("audioFile", blob, "recording.webm");
-    formData.append("messages", JSON.stringify(messages));
+    formData.append("messages", JSON.stringify(Array.isArray(messages) ? messages : []));
     formData.append("category", category); 
     formData.append("difficulty", difficulty); 
 
