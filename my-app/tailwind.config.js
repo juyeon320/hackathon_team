@@ -4,6 +4,7 @@ module.exports = {
     "./src/app/**/*.{js,ts,jsx,tsx}",  // ✅ Next.js App Router 사용 시
     "./src/component/**/*.{js,ts,jsx,tsx}",  // ✅ 컴포넌트 폴더 적용
     "./src/styles/**/*.{css}",  // ✅ Tailwind CSS 파일 적용
+    "./src/**/*.{js,ts,jsx,tsx}", 
   ],
   theme: {
     extend: {

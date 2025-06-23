@@ -174,8 +174,11 @@ export default function ChatPage() {
     }
   }, [isPlaying]);
 
+  
+
   // "종료" 버튼 클릭 시 경험치 페이지로 이동
   const handleEndConversation = () => {
+    localStorage.setItem("chatMessages", JSON.stringify(messages));
     router.push(`/experience`);
   };
   console.log("🧾 렌더링 시점 messages:", messages);

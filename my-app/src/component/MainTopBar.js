@@ -1,7 +1,14 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function MainTopBar({ showMicNotice = true }) {
+  const router = useRouter();
+  const handleReset = () => {
+    localStorage.removeItem("chatMessages");
+    router.push("/");
+  };
+  
   return (
     <div
       style={{
@@ -21,25 +28,26 @@ export default function MainTopBar({ showMicNotice = true }) {
     >
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
         <img src="/images/logo-text.png" alt="로고" style={{ height: "200px" }} />
-        <Link href="/">
+        
+        <button
+          onClick={handleReset}
+          style={{
+            border: "2px solid #aee2ff",
+            borderRadius: "8px",
+            padding: "6px 12px",
+            backgroundColor: "white",
+            color: "#333",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0faff")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "white")}
+        >
+          다시시작
+        </button>
+        
           <button
-            style={{
-              border: "2px solid #aee2ff",
-              borderRadius: "8px",
-              padding: "6px 12px",
-              backgroundColor: "white",
-              color: "#333",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0faff")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "white")}
-          >
-            다시시작
-          </button>
-        </Link>
-        <Link href="/">
-          <button
+            onClick={handleReset}
             style={{
               border: "2px solid #aee2ff",
               borderRadius: "8px",
@@ -53,10 +61,8 @@ export default function MainTopBar({ showMicNotice = true }) {
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "white")}
           >
             나가기
-            </button>
-        </Link>
-      </div>
-
+          </button>
+        </div>
       {showMicNotice && (
         <div style={{ fontSize: "18px" }}>
           <span style={{ color: "black", fontWeight: "500" }}>마이크가 안되시나요? </span>
