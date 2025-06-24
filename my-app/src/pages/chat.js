@@ -490,8 +490,6 @@ export default function ChatPage() {
           100% { opacity: 1; }
         }
       `}</style>
-
-      {/* 푸터 */}
       
     </div>
   );
